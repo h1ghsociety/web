@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { CreatePost } from "@/components/create-post";
 import { getServerAuthSession } from "@/server/auth";
 import { api } from "@/trpc/server";
