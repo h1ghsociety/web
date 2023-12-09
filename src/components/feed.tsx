@@ -9,7 +9,7 @@ export default async function Feed() {
   const latestPosts = await api.post.getLatest.query();
 
   return (
-    <div className="w-full" justify-center>
+    <div className="w-full">
       {latestPosts.length > 0 ? (
         <div className="justify-self-center">
           Your most recent post:{" "}
