@@ -1,8 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { CycleDTO } from "@/interface/Cycle";
-import { Post } from "@/interface/Post";
+import { type Post } from "@/interface/Post";
 
 export const postRouter = createTRPCRouter({
   create: protectedProcedure
