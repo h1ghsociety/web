@@ -2,6 +2,7 @@ import React from "react";
 import { CreateCycle } from "./create-cycle";
 import { getServerAuthSession } from "@/server/auth";
 import { api } from "@/trpc/server";
+import { Button } from "./ui/button";
 
 const Cycles = async () => {
   const session = await getServerAuthSession();
@@ -18,6 +19,7 @@ const Cycles = async () => {
           {getLatest.map((a) => (
             <>
               <div>
+                <Button>Add plants</Button>
                 <p>{a.cycleName}</p>
                 <p>{a.stage}</p>
                 <p>{a.week}</p>
