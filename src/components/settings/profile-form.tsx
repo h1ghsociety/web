@@ -1,17 +1,31 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useFieldArray, useForm } from "react-hook-form"
-import * as z from "zod"
+import Link from "next/link";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useFieldArray, useForm } from "react-hook-form";
+import * as z from "zod";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@radix-ui/react-select"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@radix-ui/react-select";
 
 const profileFormSchema = z.object({
   username: z
@@ -32,12 +46,12 @@ const profileFormSchema = z.object({
     .array(
       z.object({
         value: z.string().url({ message: "Please enter a valid URL." }),
-      })
+      }),
     )
     .optional(),
-})
+});
 
-type ProfileFormValues = z.infer<typeof profileFormSchema>
+type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 // This can come from your database or API.
 const defaultValues: Partial<ProfileFormValues> = {
@@ -46,19 +60,19 @@ const defaultValues: Partial<ProfileFormValues> = {
     { value: "https://shadcn.com" },
     { value: "http://twitter.com/shadcn" },
   ],
-}
+};
 
 export const ProfileForm = () => {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
     mode: "onChange",
-  })
+  });
 
   const { fields, append } = useFieldArray({
     name: "urls",
     control: form.control,
-  })
+  });
   const { toast } = useToast();
 
   function onSubmit(data: ProfileFormValues) {
@@ -69,7 +83,7 @@ export const ProfileForm = () => {
           <code className="text-white">{JSON.stringify(data, null, 2)}</code>
         </pre>
       ),
-    })
+    });
   }
 
   return (
@@ -174,5 +188,5 @@ export const ProfileForm = () => {
         <Button type="submit">Update profile</Button>
       </form>
     </Form>
-  )
-}
+  );
+};

@@ -1,8 +1,7 @@
-import { AccountForm } from "@/components/settings/account-form"
-import { Separator } from "@/components/ui/separator"
+import { AccountForm } from "@/components/settings/account-form";
+import { Separator } from "@/components/ui/separator";
 
-
- const SettingsAccountPage = () => {
+const SettingsAccountPage = () => {
   return (
     <div className="space-y-6">
       <div>
@@ -15,7 +14,7 @@ import { Separator } from "@/components/ui/separator"
       <Separator />
       <AccountForm />
     </div>
-  )
-}
+  );
+};
 
-export default SettingsAccountPage
+export default SettingsAccountPage;

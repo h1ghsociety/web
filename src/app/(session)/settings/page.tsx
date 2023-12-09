@@ -1,6 +1,6 @@
-import { Separator } from '@/components/ui/separator'
-import React from 'react'
-import { ProfileForm } from '@/components/settings/profile-form'
+import { Separator } from "@/components/ui/separator";
+import React from "react";
+import { ProfileForm } from "@/components/settings/profile-form";
 
 const SettingsProfilePage = () => {
   return (
@@ -15,7 +15,7 @@ const SettingsProfilePage = () => {
       <Separator />
       <ProfileForm />
     </div>
-  )
-}
+  );
+};
 
-export default SettingsProfilePage
+export default SettingsProfilePage;

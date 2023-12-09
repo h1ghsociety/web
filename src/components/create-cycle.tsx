@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api } from "@/trpc/react";
 import { Button } from "./ui/button";
-import { CycleDTO } from "@/interface/Cycle";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -71,7 +71,7 @@ export function CreateCycle({ userId }: { userId: string | undefined }) {
             <FormItem>
               <FormLabel>plants stage</FormLabel>
               <FormControl>
-                <select placeholder="shadcn" {...field}>
+                <select {...field}>
                   {options.map((option) => {
                     return (
                       <option key={option} value={option}>
