@@ -1,14 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Dashboard } from "@/components/dashboard";
-import Feed from "@/components/feed";
+import { AuthButton } from "@/components/auth-button";
 import { getServerAuthSession } from "@/server/auth";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
   const session = await getServerAuthSession();
 
+  if (session?.user) redirect("/dashboard");
+
   return (
-    <Dashboard session={session}>
-      <Feed />
-    </Dashboard>
+    <div>
+      <h1>Home page</h1>
+
+      <AuthButton session={session} />
+    </div>
   );
 }
