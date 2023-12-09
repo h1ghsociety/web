@@ -19,12 +19,15 @@ import { cn } from "@/lib/utils";
 import { type Session } from "next-auth";
 
 const navigation = [
-  { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
-  { name: "Team", href: "#", icon: UsersIcon, current: false },
-  { name: "Projects", href: "#", icon: FolderIcon, current: false },
-  { name: "Calendar", href: "#", icon: CalendarIcon, current: false },
-  { name: "Documents", href: "#", icon: DocumentDuplicateIcon, current: false },
-  { name: "Reports", href: "#", icon: ChartPieIcon, current: false },
+  { name: "Dashboard", href: "/", icon: FolderIcon, current: false },
+  { name: "Ciclos", href: "/cycles", icon: CalendarIcon, current: false },
+  { name: "Plantas", href: "#", icon: DocumentDuplicateIcon, current: false },
+  {
+    name: "Sign out",
+    href: "/api/auth/signout",
+    icon: ChartPieIcon,
+    current: false,
+  },
 ];
 const teams = [
   { id: 1, name: "Heroicons", href: "#", initial: "H", current: false },
@@ -298,7 +301,7 @@ export const Dashboard = ({
 
             <div className="flex flex-col items-center gap-2">
               <div className="flex flex-col items-center justify-center gap-4">
-                <p className="text-center text-2xl text-white">
+                <p className="py-6 text-center text-2xl text-black">
                   {session && <span>Logged in as {session.user?.name}</span>}
                 </p>
 

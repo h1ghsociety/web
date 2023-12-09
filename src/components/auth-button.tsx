@@ -14,7 +14,7 @@ export const AuthButton = async ({ session }: { session: Session | null }) => {
         router.push(session ? "/api/auth/signout" : "/api/auth/signin")
       }
     >
-      {session ? "Sign out" : "Sign in"}
+      {session ? "" : "Sign in"}
     </Button>
   );
 };
