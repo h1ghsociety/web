@@ -1,25 +1,18 @@
+"use client";
+
 import { cn } from "@/lib/utils";
-import {
-  DocumentDuplicateIcon,
-  ChartPieIcon,
-} from "@heroicons/react/24/outline";
-import { HomeIcon, UsersIcon, FolderIcon, CalendarIcon } from "lucide-react";
 import { type Session } from "next-auth";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { AuthButton } from "./auth-button";
-
-const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon, current: true },
-  { name: "Cycles", href: "/cycles", icon: UsersIcon, current: false },
-  { name: "Plants", href: "/plants", icon: FolderIcon, current: false },
-  { name: "Calendar", href: "#", icon: CalendarIcon, current: false },
-  { name: "Documents", href: "#", icon: DocumentDuplicateIcon, current: false },
-  { name: "Reports", href: "#", icon: ChartPieIcon, current: false },
-];
+import { navigation } from "@/lib/navigation";
+import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
 export const SidebarDesktop = ({ session }: { session: Session }) => {
+  const router = useRouter();
+
   return (
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
       {/* Sidebar component, swap this element with another sidebar if you like */}
@@ -38,33 +31,35 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
               <ul role="list" className="-mx-2 space-y-1">
                 {navigation.map((item) => (
                   <li key={item.name}>
-                    <a
-                      href={item.href}
+                    <Button
+                      onClick={() => router.push(item.href)}
+                      variant="ghost"
                       className={cn(
-                        item.current
-                          ? "bg-gray-50 text-indigo-600"
-                          : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
-                        "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
+                        item.current ? "bg-transparent" : "text-foreground",
+                        "group flex w-full justify-start gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
                       )}
                     >
                       <item.icon
                         className={cn(
                           item.current
-                            ? "text-indigo-600"
-                            : "text-gray-400 group-hover:text-indigo-600",
+                            ? "text-primary"
+                            : "text-gray-400 group-hover:text-primary",
                           "h-6 w-6 shrink-0",
                         )}
                         aria-hidden="true"
                       />
                       {item.name}
-                    </a>
+                    </Button>
                   </li>
                 ))}
               </ul>
             </li>
 
-            <li className="-mx-6 mt-auto">
+            <li className="mt-auto">
               <AuthButton session={session} />
+            </li>
+
+            <li className="-mx-6">
               <Link
                 href="/settings"
                 className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50"
