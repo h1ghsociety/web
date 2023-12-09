@@ -9,14 +9,16 @@ export default async function Feed() {
   const latestPosts = await api.post.getLatest.query();
 
   return (
-    <div className="w-full max-w-xs">
+    <div className="w-full" justify-center>
       {latestPosts.length > 0 ? (
-        <>
+        <div className="justify-self-center">
           Your most recent post:{" "}
           {latestPosts.map((p) => (
-            <p key={p.uid}>{p.title}</p>
+            <p className="justify-self-center" key={p.uid}>
+              {p.title}
+            </p>
           ))}
-        </>
+        </div>
       ) : (
         <p>You have no posts yet.</p>
       )}
