@@ -1,13 +1,10 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { type User } from "@/interface/User";
-
-const UserLanguageSchema = z.union([
-  z.literal("EN"),
-  z.literal("ES"),
-  z.literal("PT"),
-]);
-const UserThemeSchema = z.union([z.literal("light"), z.literal("dark")]);
+import {
+  UserLanguageSchema,
+  UserThemeSchema,
+  type User,
+} from "@/interface/User";
 
 export const userRouter = createTRPCRouter({
   getUserProfile: protectedProcedure
@@ -35,7 +32,7 @@ export const userRouter = createTRPCRouter({
           email: z.string().optional(),
           username: z.string().optional(),
           bio: z.string().optional(),
-          dob: z.string().optional(),
+          dob: z.date().optional(),
           language: UserLanguageSchema.optional(),
           theme: UserThemeSchema.optional(),
           urls: z.array(z.object({ value: z.string() })).optional(),
