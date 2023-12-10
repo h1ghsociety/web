@@ -1,12 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-
-export interface Post {
-  uid: string;
-  title: string;
-  createdAt: string;
-}
+import { type Post } from "@/interface/Post";
 
 export const postRouter = createTRPCRouter({
   create: protectedProcedure
