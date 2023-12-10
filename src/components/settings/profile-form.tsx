@@ -49,30 +49,23 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
+const defaultValues: Partial<ProfileFormValues> = {
+  username: "",
+  email: "",
+  bio: "",
+  urls: [{ value: "" }],
+};
+
 interface ProfileFormProps {
   session: Session;
 }
 
-/**
- *
- * @todo use the `session` prop to pre-populate the form
- * @todo fetch the user's profile data from the API
- * @todo add a `loading` state to the form UI
- * @todo add a `success` state to the form UI
- * @todo add functionality to update the user's profile
- */
 export const ProfileForm = ({ session }: ProfileFormProps) => {
   const { data: profileData } = api.user.getUserProfile.useQuery({
     uid: session.user.id,
   });
   const { mutate: updateProfile, isLoading: isUpdating } =
     api.user.updateUserProfile.useMutation();
-  const defaultValues: Partial<ProfileFormValues> = {
-    username: profileData?.username,
-    email: profileData?.email,
-    bio: profileData?.bio,
-    urls: [{ value: "" }],
-  };
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -86,7 +79,9 @@ export const ProfileForm = ({ session }: ProfileFormProps) => {
   });
   const { toast } = useToast();
 
-  function onSubmit(data: ProfileFormValues) {
+  const onSubmit = (data: ProfileFormValues) => {
+    if (form.formState.isSubmitting) return;
+
     updateProfile(
       { uid: session.user.id, data },
       {
@@ -104,7 +99,7 @@ export const ProfileForm = ({ session }: ProfileFormProps) => {
         },
       },
     );
-  }
+  };
 
   useEffect(() => {
     if (profileData) {
@@ -206,17 +201,20 @@ export const ProfileForm = ({ session }: ProfileFormProps) => {
           >
             {isUpdating ? (
               <>
-                <Loader2Icon /> Updating Profile
+                <Loader2Icon className="mr-1 h-4 w-4 animate-spin" /> Updating
+                Profile
               </>
             ) : (
               "Add URL"
             )}
           </Button>
         </div>
+
         <Button type="submit" disabled={!form.formState.isDirty}>
           {isUpdating ? (
             <>
-              <Loader2Icon className="h-5 w-5" /> Updating profile
+              <Loader2Icon className="mr-1 h-4 w-4 animate-spin" /> Updating
+              profile
             </>
           ) : (
             "Update profile"
