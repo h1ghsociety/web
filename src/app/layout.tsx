@@ -4,6 +4,7 @@ import { Montserrat } from "next/font/google";
 import { cookies } from "next/headers";
 
 import { TRPCReactProvider } from "@/trpc/react";
+import { Toaster } from "@/components/ui/toaster";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -26,6 +27,7 @@ export default function RootLayout({
       <body className={`h-full font-sans ${montserrat.variable}`}>
         <TRPCReactProvider cookies={cookies().toString()}>
           {children}
+          <Toaster />
         </TRPCReactProvider>
       </body>
     </html>

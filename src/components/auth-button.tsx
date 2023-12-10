@@ -17,7 +17,7 @@ export const AuthButton = ({ session }: { session: Session | null }) => {
       }
       variant="destructive"
       className={cn(
-        "group flex w-full justify-start gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
+        "group flex w-full justify-start gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6",
       )}
     >
       <LogOutIcon className={cn("h-4 w-4 shrink-0")} />

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
@@ -19,13 +18,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+import { type Session } from "next-auth";
+import { api } from "@/trpc/react";
+import { useEffect } from "react";
+import { Loader2Icon } from "lucide-react";
 
 const profileFormSchema = z.object({
   username: z
@@ -41,7 +37,7 @@ const profileFormSchema = z.object({
       required_error: "Please select an email to display.",
     })
     .email(),
-  bio: z.string().max(160).min(4),
+  bio: z.string().max(160).min(4).optional(),
   urls: z
     .array(
       z.object({
@@ -53,16 +49,31 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-// This can come from your database or API.
-const defaultValues: Partial<ProfileFormValues> = {
-  bio: "I own a computer.",
-  urls: [
-    { value: "https://shadcn.com" },
-    { value: "http://twitter.com/shadcn" },
-  ],
-};
+interface ProfileFormProps {
+  session: Session;
+}
 
-export const ProfileForm = () => {
+/**
+ *
+ * @todo use the `session` prop to pre-populate the form
+ * @todo fetch the user's profile data from the API
+ * @todo add a `loading` state to the form UI
+ * @todo add a `success` state to the form UI
+ * @todo add functionality to update the user's profile
+ */
+export const ProfileForm = ({ session }: ProfileFormProps) => {
+  const { data: profileData } = api.user.getUserProfile.useQuery({
+    uid: session.user.id,
+  });
+  const { mutate: updateProfile, isLoading: isUpdating } =
+    api.user.updateUserProfile.useMutation();
+  const defaultValues: Partial<ProfileFormValues> = {
+    username: profileData?.username,
+    email: profileData?.email,
+    bio: profileData?.bio,
+    urls: [{ value: "" }],
+  };
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
@@ -76,15 +87,35 @@ export const ProfileForm = () => {
   const { toast } = useToast();
 
   function onSubmit(data: ProfileFormValues) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+    updateProfile(
+      { uid: session.user.id, data },
+      {
+        onSuccess: () => {
+          toast({
+            title: "You submitted the following values:",
+            description: (
+              <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+                <code className="text-white">
+                  {JSON.stringify(data, null, 2)}
+                </code>
+              </pre>
+            ),
+          });
+        },
+      },
+    );
   }
+
+  useEffect(() => {
+    if (profileData) {
+      form.reset({
+        username: profileData.username,
+        email: profileData.email,
+        bio: profileData.bio,
+        urls: profileData.urls || [{ value: "" }],
+      });
+    }
+  }, [profileData, form.reset]);
 
   return (
     <Form {...form}>
@@ -96,7 +127,7 @@ export const ProfileForm = () => {
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="myusername123" {...field} />
               </FormControl>
               <FormDescription>
                 This is your public display name. It can be your real name or a
@@ -112,21 +143,11 @@ export const ProfileForm = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a verified email to display" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="m@example.com">m@example.com</SelectItem>
-                  <SelectItem value="m@google.com">m@google.com</SelectItem>
-                  <SelectItem value="m@support.com">m@support.com</SelectItem>
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <Input placeholder="email@example.com" {...field} />
+              </FormControl>
               <FormDescription>
-                You can manage verified email addresses in your{" "}
-                <Link href="/examples/forms">email settings</Link>.
+                This is your public email address can be seen by anyone.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -146,8 +167,8 @@ export const ProfileForm = () => {
                 />
               </FormControl>
               <FormDescription>
-                You can <span>@mention</span> other users and organizations to
-                link to them.
+                Write a short bio to tell others about your growing journey and
+                interests.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -181,11 +202,26 @@ export const ProfileForm = () => {
             size="sm"
             className="mt-2"
             onClick={() => append({ value: "" })}
+            disabled={isUpdating}
           >
-            Add URL
+            {isUpdating ? (
+              <>
+                <Loader2Icon /> Updating Profile
+              </>
+            ) : (
+              "Add URL"
+            )}
           </Button>
         </div>
-        <Button type="submit">Update profile</Button>
+        <Button type="submit" disabled={!form.formState.isDirty}>
+          {isUpdating ? (
+            <>
+              <Loader2Icon className="h-5 w-5" /> Updating profile
+            </>
+          ) : (
+            "Update profile"
+          )}
+        </Button>
       </form>
     </Form>
   );
