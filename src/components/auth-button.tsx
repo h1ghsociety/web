@@ -15,16 +15,12 @@ export const AuthButton = ({ session }: { session: Session | null }) => {
       onClick={() =>
         router.push(session ? "/api/auth/signout" : "/api/auth/signin")
       }
-      variant="ghost"
+      variant="destructive"
       className={cn(
-        "group flex w-full justify-start gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 hover:text-destructive",
+        "group flex w-full justify-start gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
       )}
     >
-      <LogOutIcon
-        className={cn(
-          "h-6 w-6 shrink-0 text-gray-400 group-hover:text-destructive",
-        )}
-      />
+      <LogOutIcon className={cn("h-4 w-4 shrink-0")} />
       {session ? "Sign out" : "Sign in"}
     </Button>
   );

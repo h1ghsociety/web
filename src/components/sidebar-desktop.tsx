@@ -15,14 +15,9 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
 
   return (
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-      {/* Sidebar component, swap this element with another sidebar if you like */}
-      <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6">
+      <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-muted/20 bg-background/20 px-6">
         <div className="flex h-16 shrink-0 items-center">
-          <img
-            className="h-8 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-            alt="Your Company"
-          />
+          <img className="h-8 w-auto" src="/Logo.svg" alt="Your Company" />
         </div>
 
         <nav className="flex flex-1 flex-col">
@@ -33,18 +28,20 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
                   <li key={item.name}>
                     <Button
                       onClick={() => router.push(item.href)}
-                      variant="ghost"
+                      variant="sidebar"
                       className={cn(
-                        item.current ? "bg-transparent" : "text-foreground",
+                        item.current
+                          ? "bg-background text-foreground"
+                          : "text-foreground/60",
                         "group flex w-full justify-start gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
                       )}
                     >
                       <item.icon
                         className={cn(
                           item.current
-                            ? "text-primary"
-                            : "text-gray-400 group-hover:text-primary",
-                          "h-6 w-6 shrink-0",
+                            ? "text-accent"
+                            : "text-accent/60 group-hover:text-accent",
+                          "h-5 w-5 shrink-0",
                         )}
                         aria-hidden="true"
                       />
@@ -62,7 +59,7 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
             <li className="-mx-6">
               <Link
                 href="/settings"
-                className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50"
+                className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-background"
               >
                 <Image
                   className="h-8 w-8 rounded-full bg-gray-50"

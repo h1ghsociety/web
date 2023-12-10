@@ -1,5 +1,5 @@
 import Cycles from "@/components/cycles";
-import { Dashboard } from "@/components/dashboard";
+import { Feed } from "@/components/feed";
 import { getServerAuthSession } from "@/server/auth";
 import React from "react";
 
@@ -9,9 +9,9 @@ const page = async () => {
   if (!session) return null;
 
   return (
-    <Dashboard>
+    <Feed>
       <Cycles />
-    </Dashboard>
+    </Feed>
   );
 };
 

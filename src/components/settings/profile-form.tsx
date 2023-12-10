@@ -25,7 +25,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@radix-ui/react-select";
+} from "@/components/ui/select";
 
 const profileFormSchema = z.object({
   username: z

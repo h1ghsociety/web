@@ -29,10 +29,10 @@ export const SidebarNav = ({ className, items, ...props }: SidebarNavProps) => {
           key={item.href}
           href={item.href}
           className={cn(
-            buttonVariants({ variant: "ghost" }),
+            buttonVariants({ variant: "sidebar" }),
             pathname === item.href
-              ? "bg-muted hover:bg-muted"
-              : "hover:bg-transparent hover:underline",
+              ? "bg-background text-foreground hover:bg-background hover:text-foreground"
+              : "hover:bg-background hover:text-foreground",
             "justify-start",
           )}
         >

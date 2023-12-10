@@ -112,7 +112,7 @@ export function AccountForm() {
                       variant="outline"
                       className={cn(
                         "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground",
+                        !field.value && "text-muted",
                       )}
                     >
                       {field.value ? (
@@ -158,7 +158,7 @@ export function AccountForm() {
                       role="combobox"
                       className={cn(
                         "w-[200px] justify-between",
-                        !field.value && "text-muted-foreground",
+                        !field.value && "text-muted",
                       )}
                     >
                       {field.value
@@ -200,7 +200,7 @@ export function AccountForm() {
               </Popover>
 
               <FormDescription>
-                This is the language that will be used in the dashboard.
+                This is the language that will be used in the feed.
               </FormDescription>
               <FormMessage />
             </FormItem>

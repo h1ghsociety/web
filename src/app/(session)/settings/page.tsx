@@ -8,7 +8,7 @@ const SettingsProfilePage = () => {
       <div>
         <h3 className="text-lg font-medium">Profile</h3>
 
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted">
           This is how others will see you on the site.
         </p>
       </div>
