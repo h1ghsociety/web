@@ -1,8 +1,13 @@
 import { Separator } from "@/components/ui/separator";
 import React from "react";
 import { ProfileForm } from "@/components/settings/profile-form";
+import { getServerAuthSession } from "@/server/auth";
 
-const SettingsProfilePage = () => {
+const SettingsProfilePage = async () => {
+  const session = await getServerAuthSession();
+
+  if (!session?.user) return null;
+
   return (
     <div className="space-y-6">
       <div>
@@ -12,8 +17,8 @@ const SettingsProfilePage = () => {
           This is how others will see you on the site.
         </p>
       </div>
-      <Separator />
-      <ProfileForm />
+      <Separator className="bg-muted-foreground" />
+      <ProfileForm session={session} />
     </div>
   );
 };

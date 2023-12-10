@@ -3,7 +3,7 @@ import Feed from "@/components/feed";
 import { getServerAuthSession } from "@/server/auth";
 import React from "react";
 
-const DashboardPage = async () => {
+const FeedPage = async () => {
   const session = await getServerAuthSession();
 
   if (!session) return null;
@@ -15,4 +15,4 @@ const DashboardPage = async () => {
   );
 };
 
-export default DashboardPage;
+export default FeedPage;
