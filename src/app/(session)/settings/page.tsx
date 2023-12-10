@@ -17,7 +17,7 @@ const SettingsProfilePage = async () => {
           This is how others will see you on the site.
         </p>
       </div>
-      <Separator className="bg-muted-foreground" />
+      <Separator />
       <ProfileForm session={session} />
     </div>
   );
