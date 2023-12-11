@@ -136,7 +136,9 @@ export const AppearanceForm = () => {
           )}
         />
 
-        <Button type="submit">Update preferences</Button>
+        <Button type="submit" disabled={!form.formState.isDirty}>
+          Update preferences
+        </Button>
       </form>
     </Form>
   );
