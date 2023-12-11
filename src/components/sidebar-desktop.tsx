@@ -7,17 +7,20 @@ import Link from "next/link";
 import React from "react";
 import { AuthButton } from "./auth-button";
 import { navigation } from "@/lib/navigation";
-import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
+import { buttonVariants } from "./ui/button";
 
 export const SidebarDesktop = ({ session }: { session: Session }) => {
-  const router = useRouter();
-
   return (
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
       <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-muted/20 bg-background/20 px-6">
         <div className="flex h-16 shrink-0 items-center">
-          <img className="h-8 w-auto" src="/Logo.svg" alt="Your Company" />
+          <Image
+            className="h-8 w-auto"
+            height={32}
+            width={32}
+            src="/Logo.svg"
+            alt="Your Company"
+          />
         </div>
 
         <nav className="flex flex-1 flex-col">
@@ -26,14 +29,14 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
               <ul role="list" className="-mx-2 space-y-1">
                 {navigation.map((item) => (
                   <li key={item.name}>
-                    <Button
-                      onClick={() => router.push(item.href)}
-                      variant="sidebar"
+                    <Link
+                      href={item.href}
                       className={cn(
+                        buttonVariants({ variant: "sidebar" }),
                         item.current
                           ? "bg-background text-foreground"
                           : "text-foreground/60",
-                        "group flex w-full justify-start gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
+                        "group flex w-full justify-start gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6",
                       )}
                     >
                       <item.icon
@@ -41,12 +44,12 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
                           item.current
                             ? "text-accent"
                             : "text-accent/60 group-hover:text-accent",
-                          "h-5 w-5 shrink-0",
+                          "h-4 w-4 shrink-0",
                         )}
                         aria-hidden="true"
                       />
                       {item.name}
-                    </Button>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -59,7 +62,7 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
             <li className="-mx-6">
               <Link
                 href="/settings"
-                className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-background"
+                className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-foreground hover:bg-background"
               >
                 <Image
                   className="h-8 w-8 rounded-full bg-gray-50"

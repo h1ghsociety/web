@@ -1,8 +1,14 @@
 import { Separator } from "@/components/ui/separator";
 import React from "react";
 import { ProfileForm } from "@/components/settings/profile-form";
+import { getServerAuthSession } from "@/server/auth";
+import { redirect } from "next/navigation";
 
-const SettingsProfilePage = () => {
+const SettingsProfilePage = async () => {
+  const session = await getServerAuthSession();
+
+  if (!session) redirect("/login");
+
   return (
     <div className="space-y-6">
       <div>
@@ -13,7 +19,7 @@ const SettingsProfilePage = () => {
         </p>
       </div>
       <Separator />
-      <ProfileForm />
+      <ProfileForm session={session} />
     </div>
   );
 };
