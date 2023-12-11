@@ -3,13 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
-import { FormProvider, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { cn } from "@/lib/utils";
 import { useToast } from "../ui/use-toast";
 import { Calendar } from "../ui/calendar";
 import {
+  Form,
   FormField,
   FormItem,
   FormLabel,
@@ -120,7 +121,7 @@ export const AccountForm = ({ session }: AccountFormProps) => {
   }, [profileData, form.reset]);
 
   return (
-    <FormProvider {...form}>
+    <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
@@ -259,6 +260,6 @@ export const AccountForm = ({ session }: AccountFormProps) => {
           )}
         </Button>
       </form>
-    </FormProvider>
+    </Form>
   );
 };

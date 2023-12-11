@@ -4,9 +4,12 @@ import { navigation } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { Transition, Dialog } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 import React, { Fragment, useState } from "react";
 
 export const SidebarMobile = () => {
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -65,9 +68,11 @@ export const SidebarMobile = () => {
               {/* Sidebar component, swap this element with another sidebar if you like */}
               <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-2">
                 <div className="flex h-16 shrink-0 items-center">
-                  <img
+                  <Image
                     className="h-8 w-auto"
-                    src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+                    height={32}
+                    width={32}
+                    src="/Logo.svg"
                     alt="Your Company"
                   />
                 </div>
@@ -81,7 +86,7 @@ export const SidebarMobile = () => {
                             <a
                               href={item.href}
                               className={cn(
-                                item.current
+                                pathname === item.href
                                   ? "bg-gray-50 text-indigo-600"
                                   : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
                                 "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
@@ -89,7 +94,7 @@ export const SidebarMobile = () => {
                             >
                               <item.icon
                                 className={cn(
-                                  item.current
+                                  pathname === item.href
                                     ? "text-indigo-600"
                                     : "text-gray-400 group-hover:text-indigo-600",
                                   "h-6 w-6 shrink-0",
