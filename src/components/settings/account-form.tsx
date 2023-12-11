@@ -3,13 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
-import { FormProvider, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { cn } from "@/lib/utils";
 import { useToast } from "../ui/use-toast";
 import { Calendar } from "../ui/calendar";
 import {
+  Form,
   FormField,
   FormItem,
   FormLabel,
@@ -27,11 +28,16 @@ import {
   CommandInput,
   CommandItem,
 } from "../ui/command";
+import { type Session } from "next-auth";
+import { api } from "@/trpc/react";
+import { Loader2Icon } from "lucide-react";
+import { useEffect } from "react";
+import { UserLanguageSchema } from "@/interface/User";
 
 const languages = [
-  { label: "English", value: "en" },
-  { label: "Spanish", value: "es" },
-  { label: "Portuguese", value: "pt" },
+  { label: "English", value: "EN" },
+  { label: "Spanish", value: "ES" },
+  { label: "Portuguese", value: "PT" },
 ] as const;
 
 const accountFormSchema = z.object({
@@ -42,44 +48,80 @@ const accountFormSchema = z.object({
     })
     .max(30, {
       message: "Name must not be longer than 30 characters.",
-    }),
-  dob: z.date({
-    required_error: "A date of birth is required.",
-  }),
-  language: z.string({
-    required_error: "Please select a language.",
-  }),
+    })
+    .optional(),
+  dob: z
+    .date({
+      required_error: "A date of birth is required.",
+    })
+    .optional(),
+  language: UserLanguageSchema.optional(),
 });
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
-// This can come from your database or API.
 const defaultValues: Partial<AccountFormValues> = {
-  name: "Your name",
-  dob: new Date("2023-01-23"),
+  name: "",
+  dob: undefined,
+  language: undefined,
 };
 
-export function AccountForm() {
+interface AccountFormProps {
+  session: Session;
+}
+
+export const AccountForm = ({ session }: AccountFormProps) => {
+  const { data: profileData } = api.user.getUserProfile.useQuery({
+    uid: session.user.id,
+  });
+  const { mutate: updateProfile, isLoading: isUpdating } =
+    api.user.updateUserProfile.useMutation();
+
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
     defaultValues,
+    mode: "onChange",
   });
 
   const { toast } = useToast();
 
-  function onSubmit(data: AccountFormValues) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
-  }
+  const onSubmit = (data: AccountFormValues) => {
+    if (form.formState.isSubmitting) return;
+
+    updateProfile(
+      {
+        uid: session.user.id,
+        data,
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "You submitted the following values:",
+            description: (
+              <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+                <code className="text-white">
+                  {JSON.stringify(data, null, 2)}
+                </code>
+              </pre>
+            ),
+          });
+        },
+      },
+    );
+  };
+
+  useEffect(() => {
+    if (profileData) {
+      form.reset({
+        name: profileData.name,
+        dob: new Date((profileData.dob as any)._seconds * 1000),
+        language: profileData.language,
+      });
+    }
+  }, [profileData, form.reset]);
 
   return (
-    <FormProvider {...form}>
+    <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
@@ -112,7 +154,7 @@ export function AccountForm() {
                       variant="outline"
                       className={cn(
                         "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground",
+                        !field.value && "text-muted",
                       )}
                     >
                       {field.value ? (
@@ -158,7 +200,7 @@ export function AccountForm() {
                       role="combobox"
                       className={cn(
                         "w-[200px] justify-between",
-                        !field.value && "text-muted-foreground",
+                        !field.value && "text-muted",
                       )}
                     >
                       {field.value
@@ -200,14 +242,24 @@ export function AccountForm() {
               </Popover>
 
               <FormDescription>
-                This is the language that will be used in the dashboard.
+                This is the language that will be used in the feed.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Update account</Button>
+
+        <Button type="submit" disabled={!form.formState.isDirty}>
+          {isUpdating ? (
+            <>
+              <Loader2Icon className="mr-1 h-4 w-4 animate-spin" /> Updating
+              account
+            </>
+          ) : (
+            "Update account"
+          )}
+        </Button>
       </form>
-    </FormProvider>
+    </Form>
   );
-}
+};

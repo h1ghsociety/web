@@ -9,7 +9,7 @@ export const Dashboard = ({ children }: { children: ReactNode }) => {
         </div>
       </main>
 
-      <aside className="fixed inset-y-0 right-0 hidden w-96 overflow-y-auto border-l border-gray-200 px-4 py-6 sm:px-6 lg:px-8 xl:block">
+      <aside className="fixed inset-y-0 right-0 hidden w-96 overflow-y-auto border-l border-muted/20 px-4 py-6 sm:px-6 lg:px-8 xl:block">
         aside
       </aside>
     </>
