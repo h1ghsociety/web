@@ -10,7 +10,6 @@ export interface User {
   bio: string;
   dob: Date;
   language: UserLanguage;
-  theme: UserTheme;
   urls: UserURL[];
   createdAt: string;
   updatedAt: string;
@@ -19,8 +18,6 @@ export interface User {
 export interface UserURL {
   value: string;
 }
-
-export type UserTheme = "light" | "dark";
 
 export type UserLanguage = "EN" | "ES" | "PT";
 

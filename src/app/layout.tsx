@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -26,8 +27,15 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body className={`h-full font-sans ${montserrat.variable}`}>
         <TRPCReactProvider cookies={cookies().toString()}>
-          {children}
-          <Toaster />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
         </TRPCReactProvider>
       </body>
     </html>
