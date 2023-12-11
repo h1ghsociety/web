@@ -1,11 +1,12 @@
 import { AccountForm } from "@/components/settings/account-form";
 import { Separator } from "@/components/ui/separator";
 import { getServerAuthSession } from "@/server/auth";
+import { redirect } from "next/navigation";
 
 const SettingsAccountPage = async () => {
   const session = await getServerAuthSession();
 
-  if (!session?.user) return null;
+  if (!session) redirect("/login");
 
   return (
     <div className="space-y-6">
