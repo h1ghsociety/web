@@ -1,4 +1,4 @@
-import { getStorage } from "firebase-admin/storage";
+import { getStorage } from "firebase/storage";
 import * as firebase from "firebase/app";
 
 export const firebaseConfig = {

@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import {
   Form,
   FormControl,
@@ -21,6 +21,8 @@ import { CycleDTO } from "@/interface/Cycle";
 import FileInput from "./dragndrop/fileInput";
 import { storage } from "@/server/firebase";
 import { Input } from "./ui/input";
+import { plantFormSchema, PlantDTO } from "@/interface/Plants";
+
 export function CreatePlant({
   userId,
   getCycles,
@@ -41,36 +43,38 @@ export function CreatePlant({
       },
     });
 
-  const plantFormSchema = z.object({
-    strain: z.string(),
-    album_url: z.instanceof(File).array(),
-    seed_type: z.string(),
-    cycle: z.string().min(0),
-  });
-
-  const form = useForm<z.infer<typeof plantFormSchema>>({
+  const form = useForm<PlantDTO>({
     resolver: zodResolver(plantFormSchema),
     defaultValues: {
       strain: "",
       album_url: [],
       seed_type: "",
-      cycle: "",
+      cycle: "aaa",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof plantFormSchema>) => {
-    const file = form.getValues("album_url");
-    console.log("filssse", file);
-    if (!storage) return;
-    const storageRef = ref(storage, file[0]);
-    // uploadBytes(storageRef, file[0]).then((snapshot) => {
-    //   console.log("Uploaded an array!");
-    // });
+  const onSubmit = async (data: PlantDTO) => {
+    const files = form.getValues("album_url");
+    console.log("data", data);
 
-    // const imageUrl = await fileRef.getDownloadURL();
+    if (!storage) return;
+    const albumURLs = files.map(async (file) => {
+      const storageRef = ref(storage, `/${userId}/plants`);
+      uploadBytes(storageRef, file).then((snapshot) => {
+        console.log("Uploaded an array!");
+      });
+      const imageUrl = await getDownloadURL(storageRef);
+      return imageUrl;
+    });
+
+    const newAlbum = await Promise.all(albumURLs);
+
+    console.log("album", newAlbum);
     createPlant({
+      ...data,
+
       userId: userId,
-      ...values,
+      album_url: newAlbum,
     });
   };
 
