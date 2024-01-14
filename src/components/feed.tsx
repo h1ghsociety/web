@@ -4,6 +4,7 @@ import { CreatePost } from "./create-post";
 
 export default async function Feed() {
   const session = await getServerAuthSession();
+
   if (!session?.user) return null;
 
   const latestPosts = await api.post.getLatest.query();
