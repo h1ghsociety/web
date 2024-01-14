@@ -33,6 +33,7 @@
     "clsx": "^2.0.0",
     "cmdk": "^0.2.0",
     "date-fns": "^2.30.0",
+    "firebase": "^10.7.1",
     "firebase-admin": "^11.11.1",
     "input": "^1.0.1",
     "lucide-react": "^0.294.0",

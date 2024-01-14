@@ -113,7 +113,9 @@ export const AccountForm = ({ session }: AccountFormProps) => {
     if (profileData) {
       form.reset({
         name: profileData.name,
-        dob: new Date((profileData.dob as any)._seconds * 1000),
+        dob: profileData.dob
+          ? new Date((profileData.dob as any)._seconds * 1000)
+          : undefined,
         language: profileData.language,
       });
     }
