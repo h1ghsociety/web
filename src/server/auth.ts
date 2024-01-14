@@ -6,8 +6,10 @@ import {
 import GoogleProvider from "next-auth/providers/google";
 
 import { env } from "@/env";
-import { FirestoreAdapter } from "@auth/firebase-adapter";
+import { FirestoreAdapter } from "@next-auth/firebase-adapter";
 import { db } from "./db";
+import { updateCustomToken } from "./utils";
+import * as admin from "firebase-admin";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -19,6 +21,8 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
+      customToken: string;
+      id_token: string;
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
@@ -37,13 +41,51 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    session: async ({ session, user }) => {
+      let customToken = "";
+
+      if (user.id) {
+        customToken = await admin.auth().createCustomToken(user.id);
+
+        await updateCustomToken(user.id, customToken, db);
+
+        const ref = db.collection("accounts").where("userId", "==", user.id);
+
+        const snap = await ref.get();
+
+        const account = snap.docs[0]?.data() as {
+          id_token: string;
+        };
+
+        if (!account) {
+          return {
+            ...session,
+            user: {
+              ...session.user,
+              id: user.id,
+            },
+          };
+        }
+
+        return {
+          ...session,
+          user: {
+            ...session.user,
+            id: user.id,
+            id_token: account.id_token,
+          },
+        };
+      }
+
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+          token: customToken,
+        },
+      };
+    },
   },
   adapter: FirestoreAdapter(db),
   providers: [
