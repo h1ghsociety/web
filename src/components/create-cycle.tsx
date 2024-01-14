@@ -16,6 +16,8 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
+import { Input } from "./ui/input";
+import { Select } from "./ui/select";
 export function CreateCycle({ userId }: { userId: string | undefined }) {
   const router = useRouter();
   const [stage, setStage] = useState<string>(
@@ -61,17 +63,17 @@ export function CreateCycle({ userId }: { userId: string | undefined }) {
   return (
     <Form {...form}>
       <form
-        className="flex w-full flex-col items-center justify-center space-y-8 border"
+        className="margin-8 flex w-full flex-col items-center justify-center space-y-8 border"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField
           control={form.control}
           name="stage"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col">
               <FormLabel>plants stage</FormLabel>
               <FormControl>
-                <select {...field}>
+                <select className="form-select" {...field}>
                   {options.map((option) => {
                     return (
                       <option key={option} value={option}>
@@ -81,9 +83,7 @@ export function CreateCycle({ userId }: { userId: string | undefined }) {
                   })}
                 </select>
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+
               <FormMessage />
             </FormItem>
           )}
@@ -92,14 +92,12 @@ export function CreateCycle({ userId }: { userId: string | undefined }) {
           control={form.control}
           name="cycleName"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col">
               <FormLabel>Cycle name</FormLabel>
               <FormControl>
-                <input placeholder="shadcn" {...field} />
+                <Input placeholder="shadcn" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+
               <FormMessage />
             </FormItem>
           )}
@@ -109,19 +107,21 @@ export function CreateCycle({ userId }: { userId: string | undefined }) {
           control={form.control}
           name="week"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col">
               <FormLabel>week</FormLabel>
               <FormControl>
-                <input placeholder="shadcn" {...field} />
+                <Input placeholder="shadcn" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={createCycle.isLoading}>
+        <Button
+          type="submit"
+          className="w-max"
+          disabled={createCycle.isLoading}
+        >
           {createCycle.isLoading ? "Submitting..." : "Submit"}
         </Button>
       </form>

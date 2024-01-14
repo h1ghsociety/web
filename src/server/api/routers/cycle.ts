@@ -31,13 +31,3 @@ export const cycleRouter = createTRPCRouter({
       );
   }),
 });
-
-// cycleRoute: protectedProcedure.query(({ ctx }) => {
-//   return ctx.db
-//     .collection("cycles")
-
-//     .add()
-//     .then((snap) =>
-//       snap.docs.map((doc) => ({ uid: doc.id, ...doc.data() }) as CycleDTO),
-//     );
-// }),

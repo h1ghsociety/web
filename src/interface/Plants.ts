@@ -5,8 +5,9 @@ export interface Plant {
 }
 export interface PlantDTO {
   uid: string;
+  userId: string;
   strain: string;
-  album_url: string;
+  album_url: string[];
   seed_type: string;
   cycles: string[];
 }

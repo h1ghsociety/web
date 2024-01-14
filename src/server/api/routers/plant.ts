@@ -9,7 +9,7 @@ export const plantRouter = createTRPCRouter({
       z.object({
         userId: z.string().min(1),
         strain: z.string().min(1),
-        album_url: z.string().min(1),
+        album_url: z.string().array().min(1),
         seed_type: z.string().min(1),
         cycle: z.string().min(1),
       }),
