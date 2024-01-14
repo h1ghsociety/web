@@ -6,7 +6,7 @@ import {
 import GoogleProvider from "next-auth/providers/google";
 
 import { env } from "@/env";
-import { FirestoreAdapter } from "@auth/firebase-adapter";
+import { FirestoreAdapter } from "@next-auth/firebase-adapter";
 import { db } from "./db";
 import { updateCustomToken } from "./utils";
 import * as admin from "firebase-admin";
