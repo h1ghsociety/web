@@ -29,7 +29,10 @@ export function CreateCycle() {
     },
   });
 
-  const { formState: { isSubmitting }, reset } = form
+  const {
+    formState: { isSubmitting },
+    reset,
+  } = form;
 
   const createCycle = api.cycle.create.useMutation({
     onSuccess: () => {
@@ -87,10 +90,10 @@ export function CreateCycle() {
         >
           {createCycle.isLoading ? (
             <>
-              Submitting... <Loader2Icon className="h-4 w-4 animate-spin" />
+              Creating <Loader2Icon className="h-4 w-4 animate-spin" />
             </>
           ) : (
-            "Submit"
+            "Create cycle"
           )}
         </Button>
       </form>

@@ -1,4 +1,3 @@
-import Cycles from "@/components/cycles";
 import { Dashboard } from "@/components/dashboard";
 import Plants from "@/components/plants";
 import { getServerAuthSession } from "@/server/auth";

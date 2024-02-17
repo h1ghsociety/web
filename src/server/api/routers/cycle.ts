@@ -17,7 +17,7 @@ export const cycleRouter = createTRPCRouter({
       });
     }),
 
-  getLatest: protectedProcedure.query(({ ctx }) => {
+  getLatest: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db
       .collection("cycles")
       .orderBy("createdAt", "desc")
