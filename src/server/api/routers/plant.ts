@@ -23,7 +23,7 @@ export const plantRouter = createTRPCRouter({
     return ctx.db
       .collection("plants")
       .orderBy("createdAt", "desc")
-      .limit(3)
+      .limit(5)
       .get()
       .then((snap) =>
         snap.docs.map((doc) => ({ uid: doc.id, ...doc.data() }) as PlantType),

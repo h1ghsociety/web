@@ -9,27 +9,31 @@ const Cycles = async () => {
 
   const getLatest = await api.cycle.getLatest.query();
   return (
-    <>
+    <div className="space-y-4">
       {getLatest.length < 0 ? (
         <CreateCycle userId={sessionUserId} />
       ) : (
         <>
           <CreateCycle userId={sessionUserId} />
-          {getLatest.map((a) => {
-            if (sessionUserId === a.userId)
+          {getLatest.map((cycle) => {
+            if (sessionUserId === cycle.userId)
               return (
-                <>
-                  <div>
-                    <p>{a.cycleName}</p>
-                    <p>{a.stage}</p>
-                    <p>{a.week}</p>
-                  </div>
-                </>
+                <div
+                  key={cycle.uid}
+                  className="space-y-2 rounded-lg bg-white p-4 shadow"
+                >
+                  <p className="text-gray-700">
+                    Cycle name : {cycle.cycleName}
+                  </p>
+                  <p className="text-gray-700">stage : {cycle.stage}</p>
+                  <p className="text-gray-700">week : {cycle.week}</p>
+                  <p>plants : {}</p>
+                </div>
               );
           })}
         </>
       )}
-    </>
+    </div>
   );
 };
 
