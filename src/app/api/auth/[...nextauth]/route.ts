@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 
 import { authOptions } from "@/server/auth";
-import admin from "firebase-admin";
+import * as admin from "firebase-admin";
 
 if (!admin.apps.length) {
   admin.initializeApp({
