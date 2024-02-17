@@ -63,17 +63,22 @@ export function CreateCycle({ userId }: { userId: string | undefined }) {
   return (
     <Form {...form}>
       <form
-        className="margin-8 flex w-full flex-col items-center justify-center space-y-8 border"
+        className="flex w-full flex-col items-center justify-center space-y-6 rounded-lg bg-white p-6 shadow-md"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField
           control={form.control}
           name="stage"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>plants stage</FormLabel>
+            <FormItem className=" flex w-full flex-col">
+              <FormLabel className="text-lg font-semibold">
+                plants stage
+              </FormLabel>
               <FormControl>
-                <select className="form-select" {...field}>
+                <select
+                  className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 focus:border-gray-500 focus:outline-none"
+                  {...field}
+                >
                   {options.map((option) => {
                     return (
                       <option key={option} value={option}>
@@ -92,8 +97,10 @@ export function CreateCycle({ userId }: { userId: string | undefined }) {
           control={form.control}
           name="cycleName"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Cycle name</FormLabel>
+            <FormItem className="flex w-full flex-col">
+              <FormLabel className="text-lg font-semibold">
+                Cycle name
+              </FormLabel>
               <FormControl>
                 <Input placeholder="shadcn" {...field} />
               </FormControl>
@@ -107,8 +114,8 @@ export function CreateCycle({ userId }: { userId: string | undefined }) {
           control={form.control}
           name="week"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>week</FormLabel>
+            <FormItem className="flex w-full flex-col">
+              <FormLabel className="text-lg font-semibold">week</FormLabel>
               <FormControl>
                 <Input placeholder="shadcn" {...field} />
               </FormControl>
@@ -119,7 +126,7 @@ export function CreateCycle({ userId }: { userId: string | undefined }) {
         />
         <Button
           type="submit"
-          className="w-max"
+          className="w-full"
           disabled={createCycle.isLoading}
         >
           {createCycle.isLoading ? "Submitting..." : "Submit"}
