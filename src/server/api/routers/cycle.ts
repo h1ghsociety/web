@@ -1,22 +1,19 @@
-import { z } from "zod";
-
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { type CycleDTO } from "@/interface/Cycle";
+import { cycleFormSchema, type Cycle } from "@/interface/Cycle";
+import { Timestamp } from "firebase-admin/firestore";
 
 export const cycleRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(
-      z.object({
-        userId: z.string().min(1),
-        cycleName: z.string().min(1),
-        week: z.string().min(1),
-        stage: z.string().min(1),
-      }),
-    )
+    .input(cycleFormSchema)
     .mutation(async ({ ctx, input }) => {
       return ctx.db.collection("cycles").add({
         ...input,
-        createdAt: new Date(Date.now()).toUTCString(),
+        author: {
+          uid: ctx.session?.user.id,
+          displayName: ctx.session?.user.name,
+          avatarUrl: ctx.session?.user.image,
+        },
+        createdAt: Timestamp.now(),
       });
     }),
 
@@ -25,9 +22,10 @@ export const cycleRouter = createTRPCRouter({
       .collection("cycles")
       .orderBy("createdAt", "desc")
       .limit(3)
+      .where("author.uid", "==", ctx.session?.user.id)
       .get()
       .then((snap) =>
-        snap.docs.map((doc) => ({ uid: doc.id, ...doc.data() }) as CycleDTO),
+        snap.docs.map((doc) => ({ uid: doc.id, ...doc.data() }) as Cycle),
       );
   }),
 });

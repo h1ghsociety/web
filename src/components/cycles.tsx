@@ -1,37 +1,45 @@
 import React from "react";
 import { CreateCycle } from "./create-cycle";
-import { getServerAuthSession } from "@/server/auth";
 import { api } from "@/trpc/server";
+import { Card, CardFooter, CardHeader } from "./ui/card";
+import { format } from "date-fns";
 
 const Cycles = async () => {
-  const session = await getServerAuthSession();
-  const sessionUserId = session?.user.id;
+  const latestCycles = await api.cycle.getLatest.query();
 
-  const getLatest = await api.cycle.getLatest.query();
   return (
     <div className="space-y-4">
-      {getLatest.length < 0 ? (
-        <CreateCycle userId={sessionUserId} />
-      ) : (
-        <>
-          <CreateCycle userId={sessionUserId} />
-          {getLatest.map((cycle) => {
-            if (sessionUserId === cycle.userId)
-              return (
-                <div
-                  key={cycle.uid}
-                  className="space-y-2 rounded-lg bg-white p-4 shadow"
-                >
+      <CreateCycle />
+
+      {latestCycles.length > 0 ? (
+        latestCycles.map((cycle) => (
+          <Card
+            key={cycle.uid}
+            className="space-y-2 rounded-lg bg-white p-4 shadow"
+          >
+            <CardHeader>
+              <h2 className="text-2xl font-bold">{cycle.name}</h2>
+            </CardHeader>
+
+            <CardFooter>
+              <div className="flex flex-col">
+                <div>
+                  <p className="font-bold">Created at: </p>
                   <p className="text-gray-700">
-                    Cycle name : {cycle.cycleName}
+                    {format(cycle.createdAt.toDate(), "PPP")}
                   </p>
-                  <p className="text-gray-700">stage : {cycle.stage}</p>
-                  <p className="text-gray-700">week : {cycle.week}</p>
-                  <p>plants : {}</p>
                 </div>
-              );
-          })}
-        </>
+
+                <div>
+                  <p className="font-bold">Author: </p>
+                  <p className="text-gray-700">{cycle.author.displayName}</p>
+                </div>
+              </div>
+            </CardFooter>
+          </Card>
+        ))
+      ) : (
+        <p>No cycles yet. Create the first one!</p>
       )}
     </div>
   );

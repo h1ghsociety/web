@@ -1,13 +1,20 @@
-export interface CycleDTO {
-  uid: string;
-  userId: string | undefined;
-  cycleName: string;
-  week: string;
-  stage: "seedling" | "vegetating" | "flowering" | "drying" | "curing";
-}
-export interface Cycle {
-  cycleDTO: CycleDTO;
+import { type Timestamp } from "firebase-admin/firestore";
+import * as z from "zod";
 
-  posts: string[];
+export const cycleFormSchema = z.object({
+  name: z.string(),
+});
+
+export type CycleDTO = z.infer<typeof cycleFormSchema>;
+
+export interface Cycle {
+  uid: string;
+  name: string;
+  author: {
+    uid: string;
+    displayName: string;
+    avatarUrl: string;
+  };
+  createdAt: Timestamp;
   plants: string[];
 }
