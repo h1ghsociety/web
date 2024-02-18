@@ -9,7 +9,7 @@ import { env } from "@/env";
 import { FirestoreAdapter } from "@next-auth/firebase-adapter";
 import { db } from "./db";
 import { updateCustomToken } from "./utils";
-import * as admin from "firebase-admin";
+import admin from "firebase-admin";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`

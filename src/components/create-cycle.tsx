@@ -1,128 +1,100 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
+
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { api } from "@/trpc/react";
 import { Button } from "./ui/button";
-import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "./ui/form";
-export function CreateCycle({ userId }: { userId: string | undefined }) {
+import { Input } from "./ui/input";
+import { type CycleDTO, cycleFormSchema } from "../interface/Cycle";
+import { useToast } from "./ui/use-toast";
+import { Loader2Icon } from "lucide-react";
+
+export function CreateCycle() {
   const router = useRouter();
-  const [stage, setStage] = useState<string>(
-    "seedling" || "vegetating" || "flowering" || "drying" || "curing",
-  );
-  console.log("userId", userId);
-  const [cycleName, setCycleName] = useState("");
-  const [week, setWeek] = useState("");
-  if (!userId) return null;
+  const { toast } = useToast();
+
+  const form = useForm<CycleDTO>({
+    resolver: zodResolver(cycleFormSchema),
+    defaultValues: {
+      name: "",
+    },
+  });
+
+  const {
+    formState: { isSubmitting },
+    reset,
+  } = form;
+
   const createCycle = api.cycle.create.useMutation({
     onSuccess: () => {
       router.refresh();
-      setStage("");
-      setCycleName("");
-      setWeek("");
+
+      reset();
     },
   });
 
-  const cycleFormSchema = z.object({
-    stage: z.string(),
-    cycleName: z.string(),
-    week: z.string(),
-  });
+  const onSubmit = (values: CycleDTO) => {
+    if (isSubmitting) return;
 
-  const form = useForm<z.infer<typeof cycleFormSchema>>({
-    resolver: zodResolver(cycleFormSchema),
-    defaultValues: {
-      stage: "",
-      cycleName: "",
-      week: "",
-    },
-  });
-
-  const onSubmit = (values: z.infer<typeof cycleFormSchema>) => {
-    createCycle.mutate({
-      userId: userId,
-      ...values,
-    });
+    createCycle.mutate(
+      {
+        ...values,
+      },
+      {
+        onError: (error) => {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        },
+      },
+    );
   };
 
-  const options = ["seedling", "vegetating", "flowering", "drying", "curing"];
-  if (!userId) return null;
   return (
     <Form {...form}>
       <form
-        className="flex w-full flex-col items-center justify-center space-y-8 border"
+        className="flex w-full flex-col justify-center space-y-8"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField
           control={form.control}
-          name="stage"
+          name="name"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>plants stage</FormLabel>
-              <FormControl>
-                <select {...field}>
-                  {options.map((option) => {
-                    return (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    );
-                  })}
-                </select>
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="cycleName"
-          render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col">
               <FormLabel>Cycle name</FormLabel>
+
               <FormControl>
-                <input placeholder="shadcn" {...field} />
+                <Input placeholder="Enter cycle name" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="week"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>week</FormLabel>
-              <FormControl>
-                <input placeholder="shadcn" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
+        <Button
+          type="submit"
+          className="flex w-full gap-2"
+          disabled={createCycle.isLoading}
+        >
+          {createCycle.isLoading ? (
+            <>
+              Creating <Loader2Icon className="h-4 w-4 animate-spin" />
+            </>
+          ) : (
+            "Create cycle"
           )}
-        />
-        <Button type="submit" disabled={createCycle.isLoading}>
-          {createCycle.isLoading ? "Submitting..." : "Submit"}
         </Button>
       </form>
     </Form>

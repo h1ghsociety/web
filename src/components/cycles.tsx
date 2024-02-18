@@ -1,34 +1,44 @@
 import React from "react";
-import { CreateCycle } from "./create-cycle";
-import { getServerAuthSession } from "@/server/auth";
 import { api } from "@/trpc/server";
-import { Button } from "./ui/button";
+import { Card, CardFooter, CardHeader } from "./ui/card";
+import { format } from "date-fns";
 
 const Cycles = async () => {
-  const session = await getServerAuthSession();
-  const sessionUserId = session?.user.id;
+  const latestCycles = await api.cycle.getLatest.query();
 
-  const getLatest = await api.cycle.getLatest.query();
   return (
-    <>
-      {getLatest.length < 0 ? (
-        <CreateCycle userId={sessionUserId} />
-      ) : (
-        <>
-          <CreateCycle userId={sessionUserId} />
-          {getLatest.map((a) => (
-            <>
-              <div>
-                <Button>Add plants</Button>
-                <p>{a.cycleName}</p>
-                <p>{a.stage}</p>
-                <p>{a.week}</p>
+    <div className="space-y-4">
+      {latestCycles.length > 0 ? (
+        latestCycles.map((cycle) => (
+          <Card
+            key={cycle.uid}
+            className="h-80 space-y-8 rounded-lg bg-white shadow-lg"
+          >
+            <CardHeader>
+              <h2 className="text-2xl font-bold">{cycle.name}</h2>
+            </CardHeader>
+
+            <CardFooter>
+              <div className="flex flex-col">
+                <div>
+                  <p className="font-bold">Created at: </p>
+                  <p className="text-gray-700">
+                    {format(cycle.createdAt.toDate(), "PPP")}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="font-bold">Author: </p>
+                  <p className="text-gray-700">{cycle.author.displayName}</p>
+                </div>
               </div>
-            </>
-          ))}
-        </>
+            </CardFooter>
+          </Card>
+        ))
+      ) : (
+        <p>No cycles yet. Create the first one!</p>
       )}
-    </>
+    </div>
   );
 };
 

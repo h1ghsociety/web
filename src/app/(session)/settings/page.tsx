@@ -2,11 +2,12 @@ import { Separator } from "@/components/ui/separator";
 import React from "react";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { getServerAuthSession } from "@/server/auth";
+import { redirect } from "next/navigation";
 
 const SettingsProfilePage = async () => {
   const session = await getServerAuthSession();
 
-  if (!session?.user) return null;
+  if (!session) redirect("/login");
 
   return (
     <div className="space-y-6">
