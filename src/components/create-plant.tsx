@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { api } from "@/trpc/react";
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
@@ -37,7 +37,6 @@ export interface FilePreview {
 export function CreatePlant() {
   const router = useRouter();
   const session = useSession();
-  const [filePreviews, setFilePreviews] = useState<FilePreview[]>([]);
   const { mutate: createPlant, isLoading: isCreating } =
     api.plant.create.useMutation({
       onSuccess: () => {
@@ -56,6 +55,7 @@ export function CreatePlant() {
   const form = useForm<PlantDTO>({
     resolver: zodResolver(plantFormSchema),
     defaultValues: {
+      name: "",
       strain: "",
       album_url: [],
       seed_type: "",
@@ -109,24 +109,21 @@ export function CreatePlant() {
     );
   };
 
-  const handleFilesChange = (files: FileList) => {
-    const newFilePreviews: FilePreview[] = Array.from(files).map((file) => ({
+  const previewFiles = useMemo(() => {
+    const newFilePreviews: FilePreview[] = Array.from(
+      watchPhotos as FileList,
+    ).map((file) => ({
       file: file,
       preview: URL.createObjectURL(file),
     }));
 
-    setFilePreviews(newFilePreviews);
-  };
-
-  const options = ["Regular", "Feminized", "Automatic", "Clone"];
-
-  useEffect(() => {
-    if (watchPhotos.length > 0) {
-      handleFilesChange(watchPhotos);
-    }
+    return newFilePreviews;
   }, [watchPhotos]);
 
+  const options = ["Regular", "Feminized", "Automatic", "Clone"];
   const fileRef = form.register("album_url");
+
+  const isLoading = isCreating || isUploadingFiles || isAddingPlantToCycle;
 
   return (
     <Form {...form}>
@@ -135,6 +132,22 @@ export function CreatePlant() {
         onSubmit={handleSubmit(onSubmit)}
       >
         <h1 className="self-start text-2xl font-semibold">Add a new plant</h1>
+
+        <FormField
+          control={control}
+          name="name"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel className="text-lg font-semibold">Name</FormLabel>
+
+              <FormControl className="mt-2">
+                <Input placeholder="Mary, Jane, etc." {...field} />
+              </FormControl>
+
+              <FormMessage className="text-xs text-red-600" />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={control}
@@ -234,8 +247,8 @@ export function CreatePlant() {
 
                 <FormControl className="mt-0">
                   <div className="flex flex-wrap rounded-md border border-gray-300 bg-gray-100 p-4">
-                    {filePreviews.length > 0 ? (
-                      filePreviews.map((filePreview, index) => (
+                    {previewFiles.length > 0 ? (
+                      previewFiles.map((filePreview, index) => (
                         <Image
                           key={filePreview.file.name}
                           src={filePreview.preview}
@@ -257,15 +270,15 @@ export function CreatePlant() {
           )}
         />
 
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isCreating || isUploadingFiles || isAddingPlantToCycle}
-        >
-          {isCreating || isUploadingFiles || isAddingPlantToCycle ? (
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? (
             <>
               <Loader2Icon className="mr-3 inline-block h-5 w-5 animate-spin" />
-              Creating
+              {isCreating
+                ? "Creating"
+                : isUploadingFiles
+                  ? "Uploading"
+                  : "Linking with cycle"}
             </>
           ) : (
             "Create"

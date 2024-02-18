@@ -6,6 +6,7 @@ export interface Plant {
   uid: string;
   author: Author;
   createdAt: Timestamp;
+  name: string;
   strain: string;
   album_url: string[];
   seed_type: string;
@@ -13,6 +14,7 @@ export interface Plant {
 }
 
 export const plantFormSchema = z.object({
+  name: z.string(),
   strain: z.string().min(2),
   seed_type: z.string(),
   cycle: z.string(),
