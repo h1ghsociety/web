@@ -1,6 +1,5 @@
 import { getServerAuthSession } from "@/server/auth";
 import { api } from "@/trpc/server";
-import { CreatePost } from "./create-post";
 
 export default async function Feed() {
   const session = await getServerAuthSession();
@@ -12,19 +11,22 @@ export default async function Feed() {
   return (
     <div className="w-full">
       {latestPosts.length > 0 ? (
-        <div className="justify-self-center">
-          Your most recent post:{" "}
-          {latestPosts.map((p) => (
-            <p className="justify-self-center" key={p.uid}>
-              {p.title}
-            </p>
-          ))}
-        </div>
+        <>
+          <ul role="list" className="space-y-3">
+            {latestPosts.map((post) => (
+              <li
+                key={post.uid}
+                className="overflow-hidden bg-white px-4 py-4 shadow sm:rounded-md sm:px-6"
+              >
+                <h3 className="text-lg font-semibold">{post.title}</h3>
+                <p className="text-gray-500">{post.createdAt}</p>
+              </li>
+            ))}
+          </ul>
+        </>
       ) : (
         <p>You have no posts yet.</p>
       )}
-
-      <CreatePost />
     </div>
   );
 }
