@@ -17,7 +17,8 @@ const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
 
   return (
     <SessionProvider>
-      <SidebarMobile />
+      <SidebarMobile session={session} />
+
       <SidebarDesktop session={session} />
       {children}
     </SessionProvider>

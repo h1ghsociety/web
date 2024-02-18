@@ -14,7 +14,7 @@ export const Dashboard = ({ main, aside }: DashboardProps) => {
           <div className="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
             <Suspense
               fallback={
-                <div className="h-svh space-y-4 overflow-y-hidden">
+                <div className="space-y-4">
                   <Skeleton className="h-96 w-full animate-pulse shadow-lg">
                     <h1 className="sr-only">Loading...</h1>
                   </Skeleton>
