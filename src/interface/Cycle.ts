@@ -6,6 +6,13 @@ export const cycleFormSchema = z.object({
   name: z.string(),
 });
 
+export const updateCycleFormSchema = cycleFormSchema
+  .extend({
+    uid: z.string(),
+    plants: z.array(z.string()),
+  })
+  .partial();
+
 export type CycleDTO = z.infer<typeof cycleFormSchema>;
 
 export interface Cycle {

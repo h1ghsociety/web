@@ -1,3 +1,4 @@
+import { updateCycleFormSchema } from "./../../../interface/Cycle";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { cycleFormSchema, type Cycle } from "@/interface/Cycle";
 import { Timestamp } from "firebase-admin/firestore";
@@ -15,6 +16,22 @@ export const cycleRouter = createTRPCRouter({
         },
         createdAt: Timestamp.now(),
       });
+    }),
+
+  addPlantToCycle: protectedProcedure
+    .input(updateCycleFormSchema)
+    .mutation(async ({ ctx, input }) => {
+      if (!input.uid) throw new Error("uid is required");
+      if (!input.plants) throw new Error("plants are required");
+
+      return ctx.db.collection("cycles").doc(input.uid).set(
+        {
+          plants: input.plants,
+        },
+        {
+          merge: true,
+        },
+      );
     }),
 
   getLatest: protectedProcedure.query(async ({ ctx }) => {

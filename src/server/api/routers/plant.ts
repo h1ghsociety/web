@@ -6,15 +6,18 @@ export const plantRouter = createTRPCRouter({
   create: protectedProcedure
     .input(plantFormSchema)
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.collection("plants").add({
-        ...input,
-        author: {
-          uid: ctx.session?.user.id,
-          displayName: ctx.session?.user.name,
-          avatarUrl: ctx.session?.user.image,
-        },
-        createdAt: Timestamp.now(),
-      });
+      return ctx.db
+        .collection("plants")
+        .add({
+          ...input,
+          author: {
+            uid: ctx.session?.user.id,
+            displayName: ctx.session?.user.name,
+            avatarUrl: ctx.session?.user.image,
+          },
+          createdAt: Timestamp.now(),
+        })
+        .then((doc) => ({ uid: doc.id, ...input }) as Plant);
     }),
 
   getLatest: protectedProcedure.query(async ({ ctx }) => {

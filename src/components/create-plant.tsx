@@ -42,10 +42,14 @@ export function CreatePlant() {
     api.plant.create.useMutation({
       onSuccess: () => {
         router.refresh();
+
+        reset();
       },
     });
   const { mutate: uploadFilesToStorage, isLoading: isUploadingFiles } =
     useUploadFilesToStorage();
+  const { mutate: addPlantToCycle, isLoading: isAddingPlantToCycle } =
+    api.cycle.addPlantToCycle.useMutation();
 
   const { data: cycles } = api.cycle.getLatest.useQuery();
 
@@ -61,6 +65,7 @@ export function CreatePlant() {
   const {
     handleSubmit,
     watch,
+    reset,
     control,
     formState: { isSubmitting },
   } = form;
@@ -79,10 +84,26 @@ export function CreatePlant() {
       },
       {
         onSuccess: (newAlbum) => {
-          createPlant({
-            ...data,
-            album_url: newAlbum,
-          });
+          createPlant(
+            {
+              ...data,
+              album_url: newAlbum,
+            },
+            {
+              onSuccess: (plant) => {
+                if (data.cycle) {
+                  const cycle = cycles?.find((c) => c.uid === data.cycle);
+
+                  if (!cycle) return;
+
+                  addPlantToCycle({
+                    uid: data.cycle,
+                    plants: [...cycle.plants, plant.uid],
+                  });
+                }
+              },
+            },
+          );
         },
       },
     );
@@ -110,9 +131,11 @@ export function CreatePlant() {
   return (
     <Form {...form}>
       <form
-        className="flex w-full flex-col items-center justify-center space-y-6 rounded-lg bg-white p-6 shadow-md"
+        className="flex w-full flex-col items-center justify-center space-y-6 rounded-lg"
         onSubmit={handleSubmit(onSubmit)}
       >
+        <h1 className="self-start text-2xl font-semibold">Add a new plant</h1>
+
         <FormField
           control={control}
           name="strain"
@@ -174,17 +197,15 @@ export function CreatePlant() {
                 </SelectTrigger>
 
                 <SelectContent>
-                  {cycles ? (
-                    cycles.map((option) => {
-                      return (
-                        <SelectItem key={option.uid} value={option.uid}>
-                          {option.name}
-                        </SelectItem>
-                      );
-                    })
-                  ) : (
-                    <SelectItem value="loading">Loading...</SelectItem>
-                  )}
+                  {cycles
+                    ? cycles.map((option) => {
+                        return (
+                          <SelectItem key={option.uid} value={option.uid}>
+                            {option.name}
+                          </SelectItem>
+                        );
+                      })
+                    : null}
                 </SelectContent>
               </Select>
 
@@ -239,9 +260,9 @@ export function CreatePlant() {
         <Button
           type="submit"
           className="w-full"
-          disabled={isCreating || isUploadingFiles}
+          disabled={isCreating || isUploadingFiles || isAddingPlantToCycle}
         >
-          {isCreating || isUploadingFiles ? (
+          {isCreating || isUploadingFiles || isAddingPlantToCycle ? (
             <>
               <Loader2Icon className="mr-3 inline-block h-5 w-5 animate-spin" />
               Creating

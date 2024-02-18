@@ -1,5 +1,5 @@
 import { Suspense, type ReactNode } from "react";
-import { Card } from "./ui/card";
+import { Skeleton } from "./ui/skeleton";
 
 type DashboardProps = {
   main: ReactNode;
@@ -15,13 +15,13 @@ export const Dashboard = ({ main, aside }: DashboardProps) => {
             <Suspense
               fallback={
                 <div className="h-svh space-y-4 overflow-y-hidden">
-                  <Card className="h-96 w-full animate-pulse bg-muted/75 p-4 shadow-lg">
+                  <Skeleton className="h-96 w-full animate-pulse shadow-lg">
                     <h1 className="sr-only">Loading...</h1>
-                  </Card>
+                  </Skeleton>
 
-                  <Card className="h-96 w-full animate-pulse bg-muted/75 p-4 shadow-lg">
+                  <Skeleton className="h-96 w-full animate-pulse shadow-lg">
                     <h1 className="sr-only">Loading...</h1>
-                  </Card>
+                  </Skeleton>
                 </div>
               }
             >
