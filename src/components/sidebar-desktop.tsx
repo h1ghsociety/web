@@ -15,7 +15,7 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
 
   return (
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-      <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-muted/20 bg-background/20 px-6">
+      <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-border bg-background/20 px-6">
         <div className="flex h-16 shrink-0 items-center">
           <Image
             className="h-8 w-auto"

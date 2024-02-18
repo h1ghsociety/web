@@ -13,8 +13,6 @@ interface DashboardLayoutProps {
 const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
   const session = await getServerAuthSession();
 
-  console.log("session", session);
-
   if (!session) redirect("/");
 
   return (

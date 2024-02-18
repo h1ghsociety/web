@@ -121,11 +121,7 @@ export function CreatePlant() {
               <FormLabel className="text-lg font-semibold">Strain</FormLabel>
 
               <FormControl className="mt-2">
-                <Input
-                  className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none"
-                  placeholder="AK-47, Blue Dream, etc."
-                  {...field}
-                />
+                <Input placeholder="AK-47, Blue Dream, etc." {...field} />
               </FormControl>
 
               <FormMessage className="text-xs text-red-600" />

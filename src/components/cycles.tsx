@@ -1,5 +1,4 @@
 import React from "react";
-import { CreateCycle } from "./create-cycle";
 import { api } from "@/trpc/server";
 import { Card, CardFooter, CardHeader } from "./ui/card";
 import { format } from "date-fns";
@@ -9,13 +8,11 @@ const Cycles = async () => {
 
   return (
     <div className="space-y-4">
-      <CreateCycle />
-
       {latestCycles.length > 0 ? (
         latestCycles.map((cycle) => (
           <Card
             key={cycle.uid}
-            className="space-y-2 rounded-lg bg-white p-4 shadow"
+            className="h-80 space-y-8 rounded-lg bg-white shadow-lg"
           >
             <CardHeader>
               <h2 className="text-2xl font-bold">{cycle.name}</h2>

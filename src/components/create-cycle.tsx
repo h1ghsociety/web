@@ -64,7 +64,7 @@ export function CreateCycle() {
   return (
     <Form {...form}>
       <form
-        className="margin-8 flex w-full flex-col items-center justify-center space-y-8"
+        className="flex w-full flex-col justify-center space-y-8"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField
@@ -85,7 +85,7 @@ export function CreateCycle() {
 
         <Button
           type="submit"
-          className="flex w-max gap-2"
+          className="flex w-full gap-2"
           disabled={createCycle.isLoading}
         >
           {createCycle.isLoading ? (

@@ -6,7 +6,7 @@
   :root {
     --background: 67 43% 96%;
     --foreground: 70 46% 5%;
-    --card: 67 43% 96%;
+    --card: 24, 6%, 83%;
     --card-foreground: 70 46% 5%;
     --popover: 67 43% 96%;
     --popover-foreground: 70 46% 5%;
@@ -14,14 +14,14 @@
     --primary-foreground: 70 46% 5%;
     --secondary: 97 45% 73%;
     --secondary-foreground: 70 46% 5%;
-    --muted: 67 43% 20%;
+    --muted: 25, 5%, 45%;
     --muted-foreground: 70 46% 70%;
     --accent: 102 45% 63%;
     --accent-foreground: 70 46% 5%;
     --destructive: 0 85% 60%;
     --destructive-foreground: 70 46% 5%;
-    --border: 67 43% 20%;
-    --input: 67 43% 20%;
+    --border: 24, 6%, 83%;
+    --input: 24, 6%, 83%;
     --ring: 102 45% 40%;
     --radius: 1rem;
   }

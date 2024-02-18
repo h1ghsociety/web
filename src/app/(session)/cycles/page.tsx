@@ -1,3 +1,4 @@
+import { CreateCycle } from "@/components/create-cycle";
 import Cycles from "@/components/cycles";
 import { Dashboard } from "@/components/dashboard";
 import { getServerAuthSession } from "@/server/auth";
@@ -8,11 +9,7 @@ const page = async () => {
 
   if (!session) return null;
 
-  return (
-    <Dashboard>
-      <Cycles />
-    </Dashboard>
-  );
+  return <Dashboard main={<Cycles />} aside={<CreateCycle />} />;
 };
 
 export default page;
