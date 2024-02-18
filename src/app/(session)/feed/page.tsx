@@ -9,11 +9,7 @@ const FeedPage = async () => {
 
   if (!session) return null;
 
-  return (
-    <Dashboard>
-      <Feed />
-    </Dashboard>
-  );
+  return <Dashboard main={<Feed />} aside={<p>aside</p>} />;
 };
 
 export default FeedPage;
