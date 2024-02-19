@@ -1,16 +1,38 @@
-import { z } from "zod";
-
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { type Post } from "@/interface/Post";
+import { newPostFormSchema, type Post } from "@/interface/Post";
+import { uploadFilesToStorage } from "@/lib/uploadFilesToStorage";
+import { Timestamp } from "firebase-admin/firestore";
 
 export const postRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(z.object({ title: z.string().min(1) }))
+    .input(newPostFormSchema)
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.collection("posts").add({
+      if (!ctx.session?.user) throw new Error("Unauthorized");
+
+      const album_url = await uploadFilesToStorage(
+        input.album_url,
+        ctx.session.user.id,
+      );
+
+      const normalizedInput = {
         ...input,
-        createdAt: new Date(Date.now()).toUTCString(),
-      });
+        album_url,
+        author: {
+          uid: ctx.session.user.id,
+          displayName: ctx.session.user.name,
+          avatarUrl: ctx.session.user.image,
+        },
+        createdAt: Timestamp.now(),
+      };
+
+      return ctx.db
+        .collection("posts")
+        .add({
+          ...input,
+          album_url,
+          createdAt: new Date(Date.now()).toUTCString(),
+        })
+        .then((doc) => ({ uid: doc.id, ...normalizedInput }));
     }),
 
   getLatest: protectedProcedure.query(({ ctx }) => {

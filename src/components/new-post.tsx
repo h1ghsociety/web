@@ -16,7 +16,6 @@ import { useForm } from "react-hook-form";
 import { Loader2Icon } from "lucide-react";
 import { Input } from "./ui/input";
 import { useToast } from "./ui/use-toast";
-import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "./ui/textarea";
 import Image from "next/image";
@@ -29,16 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-
-const newPostFormSchema = z.object({
-  title: z.string(),
-  cycle: z.string(),
-  plant: z.string(),
-  content: z.string(),
-  album_url: z.instanceof(FileList),
-});
-
-export type NewPostDTO = z.infer<typeof newPostFormSchema>;
+import { type NewPostDTO, newPostFormSchema } from "@/interface/Post";
 
 export function NewPostForm() {
   const router = useRouter();
@@ -54,7 +44,7 @@ export function NewPostForm() {
       cycle: "",
       plant: "",
       content: "",
-      album_url: {} as FileList,
+      album_url: undefined,
     },
   });
 
@@ -81,6 +71,7 @@ export function NewPostForm() {
 
     console.log("FORM DATA", data);
 
+    return;
     createPost(
       {
         ...data,
@@ -108,7 +99,7 @@ export function NewPostForm() {
       }),
     );
 
-    return newFilePreviews;
+    return newFilePreviews || [];
   }, [watchPhotos]);
 
   return (
@@ -180,7 +171,10 @@ export function NewPostForm() {
                     ? plants.map((option) => {
                         return (
                           <SelectItem key={option.uid} value={option.uid}>
-                            {option.strain}
+                            <p>{option.name}</p>
+                            <p className="text-xs text-muted">
+                              {option.strain} - {option.seed_type}
+                            </p>
                           </SelectItem>
                         );
                       })
@@ -210,7 +204,7 @@ export function NewPostForm() {
         />
 
         <FormField
-          control={form.control}
+          control={control}
           name="album_url"
           render={() => (
             <FormItem className="gap- flex w-full flex-col">

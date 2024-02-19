@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { api } from "@/trpc/react";
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
@@ -15,11 +15,9 @@ import {
   FormMessage,
 } from "./ui/form";
 
-import { storage } from "@/server/firebase";
 import { Input } from "./ui/input";
 import { plantFormSchema, type PlantDTO } from "@/interface/Plant";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
 import {
   Select,
   SelectContent,
@@ -28,7 +26,11 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Loader2Icon } from "lucide-react";
-import { useUploadFilesToStorage } from "@/hooks/useUploadFilesToStorage";
+import { collection, doc } from "firebase/firestore";
+import { firestore } from "@/lib/firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storage } from "@/server/firebase";
+import { useSession } from "next-auth/react";
 export interface FilePreview {
   file: File;
   preview: string;
@@ -37,6 +39,28 @@ export interface FilePreview {
 export function CreatePlant() {
   const router = useRouter();
   const session = useSession();
+  const { data: cycles } = api.cycle.getLatest.useQuery();
+  const [isUploadingFiles, setIsUploadingFiles] = useState(false);
+
+  const form = useForm<PlantDTO>({
+    resolver: zodResolver(plantFormSchema),
+    defaultValues: {
+      name: "",
+      strain: "",
+      seed_type: "",
+      cycle: "",
+      album_url: {} as FileList,
+    },
+  });
+  const {
+    handleSubmit,
+    watch,
+    reset,
+    control,
+    formState: { isSubmitting, isValid },
+  } = form;
+  const watchPhotos = watch("album_url");
+
   const { mutate: createPlant, isLoading: isCreating } =
     api.plant.create.useMutation({
       onSuccess: () => {
@@ -45,85 +69,84 @@ export function CreatePlant() {
         reset();
       },
     });
-  const { mutate: uploadFilesToStorage, isLoading: isUploadingFiles } =
-    useUploadFilesToStorage();
   const { mutate: addPlantToCycle, isLoading: isAddingPlantToCycle } =
     api.cycle.addPlantToCycle.useMutation();
 
-  const { data: cycles } = api.cycle.getLatest.useQuery();
-
-  const form = useForm<PlantDTO>({
-    resolver: zodResolver(plantFormSchema),
-    defaultValues: {
-      name: "",
-      strain: "",
-      album_url: [],
-      seed_type: "",
-      cycle: "",
-    },
-  });
-  const {
-    handleSubmit,
-    watch,
-    reset,
-    control,
-    formState: { isSubmitting },
-  } = form;
-
-  const watchPhotos = watch("album_url");
-
   const onSubmit = async (data: PlantDTO) => {
-    if (isSubmitting) return;
+    if (isSubmitting || !session.data) return;
 
-    if (!storage) return;
-    if (!session.data?.user) return;
+    const { newAlbum, newPlantId } = await handleUploadFiles(
+      data.album_url,
+      session.data.user.id,
+    );
 
-    uploadFilesToStorage(
+    createPlant(
       {
-        files: data.album_url,
+        ...data,
+        uid: newPlantId,
+        album_url: newAlbum,
       },
       {
-        onSuccess: (newAlbum) => {
-          createPlant(
-            {
-              ...data,
-              album_url: newAlbum,
-            },
-            {
-              onSuccess: (plant) => {
-                if (data.cycle) {
-                  const cycle = cycles?.find((c) => c.uid === data.cycle);
+        onSuccess: (plant) => {
+          if (data.cycle) {
+            const cycle = cycles?.find((c) => c.uid === data.cycle);
 
-                  if (!cycle) return;
+            if (!cycle || !plant) return;
 
-                  addPlantToCycle({
-                    uid: data.cycle,
-                    plants: [...cycle.plants, plant.uid],
-                  });
-                }
-              },
-            },
-          );
+            addPlantToCycle({
+              uid: data.cycle,
+              plants: [...cycle.plants, newPlantId],
+            });
+          }
         },
       },
     );
   };
 
-  const previewFiles = useMemo(() => {
-    const newFilePreviews: FilePreview[] = Array.from(
-      watchPhotos as FileList,
-    ).map((file) => ({
-      file: file,
-      preview: URL.createObjectURL(file),
-    }));
+  const handleUploadFiles = async (files: FileList, userId: string) => {
+    setIsUploadingFiles(true);
 
-    return newFilePreviews;
+    const collectionRef = collection(firestore, "plants");
+    const docRef = doc(collectionRef);
+    const newPlantId = docRef.id;
+
+    const albumURLs = Object.values(files).map(async (file) => {
+      const storageRef = ref(
+        storage,
+        `/${userId}/plants/${newPlantId}/${file.name}`,
+      );
+
+      await uploadBytes(storageRef, file);
+
+      const imageUrl = await getDownloadURL(storageRef);
+
+      return imageUrl;
+    });
+
+    const newAlbum = await Promise.all(albumURLs);
+
+    setIsUploadingFiles(false);
+
+    return {
+      newAlbum,
+      newPlantId,
+    };
+  };
+
+  const previewFiles = useMemo(() => {
+    const newFilePreviews: FilePreview[] = Array.from(watchPhotos).map(
+      (file) => ({
+        file: file,
+        preview: URL.createObjectURL(file),
+      }),
+    );
+
+    return newFilePreviews || [];
   }, [watchPhotos]);
 
   const options = ["Regular", "Feminized", "Automatic", "Clone"];
-  const fileRef = form.register("album_url");
 
-  const isLoading = isCreating || isUploadingFiles || isAddingPlantToCycle;
+  const isLoading = isCreating || isAddingPlantToCycle || isUploadingFiles;
 
   return (
     <Form {...form}>
@@ -228,7 +251,7 @@ export function CreatePlant() {
         />
 
         <FormField
-          control={form.control}
+          control={control}
           name="album_url"
           render={() => (
             <FormItem className="gap- flex w-full flex-col">
@@ -238,7 +261,11 @@ export function CreatePlant() {
                 </FormLabel>
 
                 <FormControl className="flex flex-grow flex-col items-center justify-center">
-                  <Input multiple type="file" {...fileRef} />
+                  <Input
+                    multiple
+                    type="file"
+                    {...control.register("album_url")}
+                  />
                 </FormControl>
               </div>
 
@@ -270,15 +297,15 @@ export function CreatePlant() {
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={!isValid || isLoading}
+        >
           {isLoading ? (
             <>
               <Loader2Icon className="mr-3 inline-block h-5 w-5 animate-spin" />
-              {isCreating
-                ? "Creating"
-                : isUploadingFiles
-                  ? "Uploading"
-                  : "Linking with cycle"}
+              Creating
             </>
           ) : (
             "Create"

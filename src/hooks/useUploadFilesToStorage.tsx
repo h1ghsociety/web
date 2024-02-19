@@ -8,11 +8,18 @@ export const useUploadFilesToStorage = () => {
 
   return useMutation({
     mutationKey: ["uploadFilesToStorage"],
-    mutationFn: async ({ files }: { files: FileList }) => {
+    mutationFn: async ({
+      files,
+      newPlantId,
+    }: {
+      files: FileList;
+      newPlantId: string;
+    }) => {
+      console.log("FILES", files);
       const albumURLs = Object.values(files).map(async (file) => {
         const storageRef = ref(
           storage,
-          `/${session.data?.user.id}/plants/${file.name}`,
+          `/${session.data?.user.id}/plants/${newPlantId}/${file.name}`,
         );
 
         await uploadBytes(storageRef, file);

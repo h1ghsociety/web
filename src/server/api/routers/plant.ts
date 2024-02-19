@@ -1,23 +1,29 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { Timestamp } from "firebase-admin/firestore";
-import { plantFormSchema, type Plant } from "@/interface/Plant";
+import { plantSchema, type Plant } from "@/interface/Plant";
 
 export const plantRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(plantFormSchema)
+    .input(plantSchema)
     .mutation(async ({ ctx, input }) => {
-      return ctx.db
+      if (!ctx.session?.user) throw new Error("Unauthorized");
+
+      console.log("CREATE PLANT", input);
+
+      const normalizedInput = {
+        ...input,
+        author: {
+          uid: ctx.session.user.id,
+          displayName: ctx.session.user.name,
+          avatarUrl: ctx.session.user.image,
+        },
+        createdAt: Timestamp.now(),
+      };
+
+      return await ctx.db
         .collection("plants")
-        .add({
-          ...input,
-          author: {
-            uid: ctx.session?.user.id,
-            displayName: ctx.session?.user.name,
-            avatarUrl: ctx.session?.user.image,
-          },
-          createdAt: Timestamp.now(),
-        })
-        .then((doc) => ({ uid: doc.id, ...input }) as Plant);
+        .doc(input.uid)
+        .set(normalizedInput);
     }),
 
   getLatest: protectedProcedure.query(async ({ ctx }) => {
