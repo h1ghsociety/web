@@ -70,6 +70,7 @@ export function NewPostForm() {
       },
     });
   const { mutate: addPhotosToPlant } = api.plant.update.useMutation();
+  const { mutate: addPostToUser } = api.user.addPost.useMutation();
 
   const onSubmit = async (data: NewPostDTO) => {
     if (isSubmitting || !session.data) return;
@@ -88,6 +89,13 @@ export function NewPostForm() {
       },
       {
         onSuccess: (post) => {
+          if (!post.uid) return;
+
+          addPostToUser({
+            uid: session.data.user.id,
+            postId: post.uid,
+          });
+
           const joinedAlbums = plants
             ?.find((plant) => plant.uid === post.plant)
             ?.album_url.concat(newAlbum);

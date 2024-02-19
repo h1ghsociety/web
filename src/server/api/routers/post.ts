@@ -23,7 +23,7 @@ export const postRouter = createTRPCRouter({
       return ctx.db
         .collection("posts")
         .add(normalizedInput)
-        .then(() => ({ ...normalizedInput }));
+        .then((doc) => ({ uid: doc.id, ...normalizedInput }));
     }),
 
   getLatest: protectedProcedure.query(({ ctx }) => {
