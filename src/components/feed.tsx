@@ -1,30 +1,62 @@
-import { getServerAuthSession } from "@/server/auth";
 import { api } from "@/trpc/server";
 import { format } from "date-fns";
+import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
+import Image from "next/image";
 
 export default async function Feed() {
-  const session = await getServerAuthSession();
-
-  if (!session?.user) return null;
-
-  const latestPosts = await api.post.getLatest.query();
+  const posts = await api.post.getLatest.query();
 
   return (
     <div className="w-full">
-      {latestPosts.length > 0 ? (
+      {posts.length > 0 ? (
         <>
           <ul role="list" className="space-y-3">
-            {latestPosts.map((post) => (
-              <li
+            {posts.map((post) => (
+              <Card
                 key={post.uid}
-                className="overflow-hidden bg-white px-4 py-4 shadow sm:rounded-md sm:px-6"
+                className="space-y-8 rounded-lg bg-white shadow-lg"
               >
-                <h3 className="text-lg font-semibold">{post.title}</h3>
+                <CardHeader>
+                  <p className="text-xl font-semibold">{post.title}</p>
+                </CardHeader>
 
-                <p className="text-gray-500">
-                  {format(post.createdAt.toDate(), "PPP")}
-                </p>
-              </li>
+                <CardContent>
+                  <div className="flex space-x-4">
+                    {post.album_url.map((url) => (
+                      <Image
+                        key={url}
+                        src={url}
+                        width={112}
+                        height={112}
+                        className="h-28 w-28 rounded-lg object-cover"
+                        alt={post.title}
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+
+                <CardFooter>
+                  <div className="flex items-center space-x-4">
+                    <Image
+                      src={post.author.avatarUrl}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full"
+                      alt={post.author.displayName}
+                    />
+
+                    <div>
+                      <p className="text-md font-semibold">
+                        {post.author.displayName}
+                      </p>
+
+                      <p className="text-sm text-muted">
+                        {format(post.createdAt.toDate(), "PPP")}
+                      </p>
+                    </div>
+                  </div>
+                </CardFooter>
+              </Card>
             ))}
           </ul>
         </>

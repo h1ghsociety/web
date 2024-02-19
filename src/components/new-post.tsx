@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "./ui/textarea";
 import Image from "next/image";
 import { type FilePreview } from "./create-plant";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -29,13 +29,17 @@ import {
   SelectValue,
 } from "./ui/select";
 import { type NewPostDTO, newPostFormSchema } from "@/interface/Post";
+import { useSession } from "next-auth/react";
+import { storage } from "@/server/firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export function NewPostForm() {
   const router = useRouter();
   const { toast } = useToast();
-
+  const session = useSession();
   const { data: cycles } = api.cycle.getLatest.useQuery();
   const { data: plants } = api.plant.getLatest.useQuery();
+  const [isUploadingFiles, setIsUploadingFiles] = useState(false);
 
   const form = useForm<NewPostDTO>({
     resolver: zodResolver(newPostFormSchema),
@@ -65,18 +69,43 @@ export function NewPostForm() {
         reset();
       },
     });
+  const { mutate: addPhotosToPlant } = api.plant.update.useMutation();
 
-  const onSubmit = (data: NewPostDTO) => {
-    if (isSubmitting) return;
+  const onSubmit = async (data: NewPostDTO) => {
+    if (isSubmitting || !session.data) return;
 
     console.log("FORM DATA", data);
 
-    return;
+    const newAlbum = await handleUploadFiles(
+      data.album_url,
+      `/${session.data.user.id}/plants/${data.plant}`,
+    );
+
     createPost(
       {
         ...data,
+        album_url: newAlbum,
       },
       {
+        onSuccess: (post) => {
+          const joinedAlbums = plants
+            ?.find((plant) => plant.uid === post.plant)
+            ?.album_url.concat(newAlbum);
+
+          if (!joinedAlbums) return;
+
+          addPhotosToPlant(
+            {
+              uid: post.plant,
+              album_url: joinedAlbums,
+            },
+            {
+              onSuccess: () => {
+                router.push("/feed");
+              },
+            },
+          );
+        },
         onError: (error) => {
           toast({
             title: "Error",
@@ -88,10 +117,32 @@ export function NewPostForm() {
     );
   };
 
+  const handleUploadFiles = async (files: FileList, path: string) => {
+    setIsUploadingFiles(true);
+
+    const albumURLs = Object.values(files).map(async (file) => {
+      const storageRef = ref(storage, `${path}/${file.name}`);
+
+      await uploadBytes(storageRef, file);
+
+      const imageUrl = await getDownloadURL(storageRef);
+
+      return imageUrl;
+    });
+
+    const newAlbum = await Promise.all(albumURLs);
+
+    setIsUploadingFiles(false);
+
+    return newAlbum;
+  };
+
   const fileRef = register("album_url");
   const watchPhotos = watch("album_url");
 
   const previewFiles = useMemo(() => {
+    if (!watchPhotos) return [];
+
     const newFilePreviews: FilePreview[] = Array.from(watchPhotos).map(
       (file) => ({
         file: file,
@@ -249,14 +300,15 @@ export function NewPostForm() {
         <Button
           type="submit"
           className="flex w-full gap-2"
-          disabled={isCreating}
+          disabled={isCreating || isUploadingFiles}
         >
-          {isCreating ? (
+          {isCreating || isUploadingFiles ? (
             <>
-              Creating <Loader2Icon className="h-4 w-4 animate-spin" />
+              <Loader2Icon className="h-4 w-4 animate-spin" />
+              Posting
             </>
           ) : (
-            "Create post"
+            "Post"
           )}
         </Button>
       </form>

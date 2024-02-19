@@ -1,4 +1,4 @@
-import { type Timestamp } from "firebase-admin/firestore";
+import { Timestamp } from "firebase/firestore";
 import { z } from "zod";
 import { type Author } from "./Author";
 
@@ -45,12 +45,8 @@ export const plantSchema = z.object({
     ),
   cycle: z.string().refine((val) => val !== "Select one of your cycles"),
   album_url: z.array(z.string()),
+  createdAt: z.instanceof(Timestamp).optional(),
+  updatedAt: z.instanceof(Timestamp).optional(),
 });
-
-export const updatePlantFormSchema = plantFormSchema
-  .extend({
-    uid: z.string(),
-  })
-  .partial();
 
 export type PlantDTO = z.infer<typeof plantFormSchema>;

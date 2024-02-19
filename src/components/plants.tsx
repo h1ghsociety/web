@@ -9,6 +9,8 @@ import { Badge } from "./ui/badge";
 const Plants = async () => {
   const plants = await api.plant.getLatest.query();
 
+  console.log("PLANTS", typeof plants[0]?.createdAt);
+
   return (
     <div className="space-y-4">
       {plants.length > 0 ? (
