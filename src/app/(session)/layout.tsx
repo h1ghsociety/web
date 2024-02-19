@@ -1,5 +1,6 @@
 import { SidebarDesktop } from "@/components/sidebar-desktop";
 import { SidebarMobile } from "@/components/sidebar-mobile";
+import { SessionProvider } from "@/contexts/session-provider";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
 
@@ -12,14 +13,15 @@ interface DashboardLayoutProps {
 const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
   const session = await getServerAuthSession();
 
-  if (!session) redirect("/login");
+  if (!session) redirect("/");
 
   return (
-    <>
-      <SidebarMobile />
+    <SessionProvider>
+      <SidebarMobile session={session} />
+
       <SidebarDesktop session={session} />
       {children}
-    </>
+    </SessionProvider>
   );
 };
 

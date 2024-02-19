@@ -5,6 +5,7 @@ import {
   UserThemeSchema,
   type User,
 } from "@/interface/User";
+import { FieldValue } from "firebase-admin/firestore";
 
 export const userRouter = createTRPCRouter({
   getUserProfile: protectedProcedure
@@ -20,6 +21,17 @@ export const userRouter = createTRPCRouter({
           } else {
             return null;
           }
+        });
+    }),
+
+  addPost: protectedProcedure
+    .input(z.object({ uid: z.string(), postId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.db
+        .collection("users")
+        .doc(input.uid)
+        .update({
+          posts: FieldValue.arrayUnion(input.postId),
         });
     }),
 

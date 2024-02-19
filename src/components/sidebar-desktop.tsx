@@ -9,13 +9,14 @@ import { AuthButton } from "./auth-button";
 import { navigation } from "@/lib/navigation";
 import { buttonVariants } from "./ui/button";
 import { usePathname } from "next/navigation";
+import { Plus } from "lucide-react";
 
 export const SidebarDesktop = ({ session }: { session: Session }) => {
   const pathname = usePathname();
 
   return (
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-      <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-muted/20 bg-background/20 px-6">
+      <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-border bg-background/20 px-6">
         <div className="flex h-16 shrink-0 items-center">
           <Image
             className="h-8 w-auto"
@@ -29,13 +30,33 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
             <li>
-              <ul role="list" className="-mx-2 space-y-1">
+              <ul role="list" className="-mx-2 space-y-2">
+                <li>
+                  <Link
+                    href="/new-post"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "group flex w-full justify-start gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6",
+                    )}
+                  >
+                    <Plus
+                      className={cn("h-4 w-4 shrink-0")}
+                      aria-hidden="true"
+                    />
+                    New post
+                  </Link>
+                </li>
+
+                <div className="text-xs font-semibold leading-6 text-gray-400">
+                  Your teams
+                </div>
+
                 {navigation.map((item) => (
                   <li key={item.name}>
                     <Link
                       href={item.href}
                       className={cn(
-                        buttonVariants({ variant: "sidebar" }),
+                        buttonVariants({ variant: "ghost" }),
                         pathname === item.href
                           ? "bg-background text-foreground"
                           : "text-foreground/60",
@@ -45,8 +66,8 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
                       <item.icon
                         className={cn(
                           pathname === item.href
-                            ? "text-accent"
-                            : "text-accent/60 group-hover:text-accent",
+                            ? "text-foreground"
+                            : "text-foreground/60 group-hover:text-foreground",
                           "h-4 w-4 shrink-0",
                         )}
                         aria-hidden="true"

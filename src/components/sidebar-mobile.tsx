@@ -1,119 +1,121 @@
 "use client";
 
+import { Bars3Icon } from "@heroicons/react/24/outline";
+import { usePathname } from "next/navigation";
+import React, { useState } from "react";
+
+import { Button, buttonVariants } from "./ui/button";
+
 import { navigation } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { Transition, Dialog } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import React, { Fragment, useState } from "react";
+import Link from "next/link";
+import { AuthButton } from "./auth-button";
+import { type Session } from "next-auth";
+import {
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  Sheet,
+  SheetFooter,
+} from "./ui/sheet";
 
-export const SidebarMobile = () => {
+export const SidebarMobile = ({ session }: { session: Session }) => {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <Transition.Root show={sidebarOpen} as={Fragment}>
-      <Dialog
-        as="div"
-        className="relative z-50 lg:hidden"
-        onClose={setSidebarOpen}
-      >
-        <Transition.Child
-          as={Fragment}
-          enter="transition-opacity ease-linear duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="transition-opacity ease-linear duration-300"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-gray-900/80" />
-        </Transition.Child>
+    <div className="sticky top-0 z-40 flex items-center gap-x-6 px-4 py-4 shadow-sm sm:px-6 lg:hidden">
+      <div className="flex h-16 shrink-0 flex-grow items-center">
+        <Image
+          className="h-8 w-auto"
+          height={32}
+          width={32}
+          src="/Logo.svg"
+          alt="Your Company"
+        />
+      </div>
 
-        <div className="fixed inset-0 flex">
-          <Transition.Child
-            as={Fragment}
-            enter="transition ease-in-out duration-300 transform"
-            enterFrom="-translate-x-full"
-            enterTo="translate-x-0"
-            leave="transition ease-in-out duration-300 transform"
-            leaveFrom="translate-x-0"
-            leaveTo="-translate-x-full"
+      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+        <SheetTrigger asChild>
+          <Button
+            variant="outline"
+            className="-m-2.5 p-2.5 lg:hidden"
+            onClick={() => setSidebarOpen(true)}
           >
-            <Dialog.Panel className="relative mr-16 flex w-full max-w-xs flex-1">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-in-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in-out duration-300"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
-                  <button
-                    type="button"
-                    className="-m-2.5 p-2.5"
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    <span className="sr-only">Close sidebar</span>
-                    <XMarkIcon
-                      className="h-6 w-6 text-white"
-                      aria-hidden="true"
-                    />
-                  </button>
-                </div>
-              </Transition.Child>
-              {/* Sidebar component, swap this element with another sidebar if you like */}
-              <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-2">
-                <div className="flex h-16 shrink-0 items-center">
-                  <Image
-                    className="h-8 w-auto"
-                    height={32}
-                    width={32}
-                    src="/Logo.svg"
-                    alt="Your Company"
-                  />
-                </div>
+            <span className="sr-only">Open sidebar</span>
+            <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+          </Button>
+        </SheetTrigger>
 
-                <nav className="flex flex-1 flex-col">
-                  <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                    <li>
-                      <ul role="list" className="-mx-2 space-y-1">
-                        {navigation.map((item) => (
-                          <li key={item.name}>
-                            <a
-                              href={item.href}
-                              className={cn(
-                                pathname === item.href
-                                  ? "bg-gray-50 text-indigo-600"
-                                  : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
-                                "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
-                              )}
-                            >
-                              <item.icon
-                                className={cn(
-                                  pathname === item.href
-                                    ? "text-indigo-600"
-                                    : "text-gray-400 group-hover:text-indigo-600",
-                                  "h-6 w-6 shrink-0",
-                                )}
-                                aria-hidden="true"
-                              />
-                              {item.name}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
-            </Dialog.Panel>
-          </Transition.Child>
-        </div>
-      </Dialog>
-    </Transition.Root>
+        <SheetContent side="left" className="flex h-full grow flex-col">
+          <SheetHeader>
+            <SheetTitle>
+              <Image
+                className="h-8 w-auto"
+                height={32}
+                width={32}
+                src="/Logo.svg"
+                alt="Your Company"
+              />
+            </SheetTitle>
+          </SheetHeader>
+
+          <nav className="flex flex-1 flex-col">
+            <ul role="list" className="flex flex-1 flex-col gap-y-4">
+              <ul role="list" className="-mx-2 space-y-1">
+                {navigation.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        buttonVariants({ variant: "sidebar" }),
+                        pathname === item.href
+                          ? "bg-background text-foreground"
+                          : "text-foreground/60",
+                        "group flex w-full justify-start gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6",
+                      )}
+                    >
+                      <item.icon
+                        className={cn(
+                          pathname === item.href
+                            ? "text-accent"
+                            : "text-accent/60 group-hover:text-accent",
+                          "h-4 w-4 shrink-0",
+                        )}
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+
+              <SheetFooter className="mt-auto flex gap-4 px-0 sm:flex-col">
+                <li>
+                  <AuthButton session={session} />
+                </li>
+
+                <Link
+                  href="/settings"
+                  className="flex w-full items-center gap-x-4 py-3 text-sm font-semibold leading-6 text-foreground hover:bg-background"
+                >
+                  <Image
+                    className="h-8 w-8 rounded-full bg-gray-50"
+                    src={session.user?.image ?? ""}
+                    width={32}
+                    height={32}
+                    alt={session.user?.name ?? ""}
+                  />
+                  <span className="sr-only">Your profile</span>
+                  <span aria-hidden="true">{session.user?.name}</span>
+                </Link>
+              </SheetFooter>
+            </ul>
+          </nav>
+        </SheetContent>
+      </Sheet>
+    </div>
   );
 };

@@ -1,8 +1,7 @@
-import { CreateCycle } from "@/components/create-cycle";
-import Cycles from "@/components/cycles";
+import { CreatePlant } from "@/components/create-plant";
 import { Dashboard } from "@/components/dashboard";
+import Plants from "@/components/plants";
 import { getServerAuthSession } from "@/server/auth";
-
 import React from "react";
 
 const page = async () => {
@@ -10,7 +9,7 @@ const page = async () => {
 
   if (!session) return null;
 
-  return <Dashboard main={<Cycles />} aside={<CreateCycle />} />;
+  return <Dashboard main={<Plants />} aside={<CreatePlant />} />;
 };
 
 export default page;
