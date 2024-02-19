@@ -1,11 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+
 import { api } from "@/trpc/react";
 import { Button } from "./ui/button";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -14,10 +12,15 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-
+import { useForm } from "react-hook-form";
+import { Loader2Icon } from "lucide-react";
 import { Input } from "./ui/input";
-import { plantFormSchema, type PlantDTO } from "@/interface/Plant";
+import { useToast } from "./ui/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Textarea } from "./ui/textarea";
 import Image from "next/image";
+import { type FilePreview } from "./create-plant";
+import { useMemo, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -25,96 +28,100 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Loader2Icon } from "lucide-react";
-import { collection, doc } from "firebase/firestore";
-import { firestore } from "@/lib/firebase";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { storage } from "@/server/firebase";
+import { type NewPostDTO, newPostFormSchema } from "@/interface/Post";
 import { useSession } from "next-auth/react";
-export interface FilePreview {
-  file: File;
-  preview: string;
-}
+import { storage } from "@/server/firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
-export function CreatePlant() {
+export function NewPostForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const session = useSession();
   const { data: cycles } = api.cycle.getLatest.useQuery();
+  const { data: plants } = api.plant.getLatest.useQuery();
   const [isUploadingFiles, setIsUploadingFiles] = useState(false);
 
-  const form = useForm<PlantDTO>({
-    resolver: zodResolver(plantFormSchema),
+  const form = useForm<NewPostDTO>({
+    resolver: zodResolver(newPostFormSchema),
     defaultValues: {
-      name: "",
-      strain: "",
-      seed_type: "",
+      title: "",
       cycle: "",
-      album_url: {} as FileList,
+      plant: "",
+      content: "",
+      album_url: undefined,
     },
   });
+
   const {
+    register,
     handleSubmit,
     watch,
-    reset,
     control,
-    formState: { isSubmitting, isValid },
+    formState: { isSubmitting },
+    reset,
   } = form;
-  const watchPhotos = watch("album_url");
 
-  const { mutate: createPlant, isLoading: isCreating } =
-    api.plant.create.useMutation({
+  const { mutate: createPost, isLoading: isCreating } =
+    api.post.create.useMutation({
       onSuccess: () => {
         router.refresh();
 
         reset();
       },
     });
-  const { mutate: addPlantToCycle, isLoading: isAddingPlantToCycle } =
-    api.cycle.addPlantToCycle.useMutation();
+  const { mutate: addPhotosToPlant } = api.plant.update.useMutation();
 
-  const onSubmit = async (data: PlantDTO) => {
+  const onSubmit = async (data: NewPostDTO) => {
     if (isSubmitting || !session.data) return;
 
-    const { newAlbum, newPlantId } = await handleUploadFiles(
+    console.log("FORM DATA", data);
+
+    const newAlbum = await handleUploadFiles(
       data.album_url,
-      session.data.user.id,
+      `/${session.data.user.id}/plants/${data.plant}`,
     );
 
-    createPlant(
+    createPost(
       {
         ...data,
-        uid: newPlantId,
         album_url: newAlbum,
       },
       {
-        onSuccess: (plant) => {
-          if (data.cycle) {
-            const cycle = cycles?.find((c) => c.uid === data.cycle);
+        onSuccess: (post) => {
+          const joinedAlbums = plants
+            ?.find((plant) => plant.uid === post.plant)
+            ?.album_url.concat(newAlbum);
 
-            if (!cycle || !plant) return;
+          if (!joinedAlbums) return;
 
-            addPlantToCycle({
-              uid: data.cycle,
-              plants: [...cycle.plants, newPlantId],
-            });
-          }
+          addPhotosToPlant(
+            {
+              uid: post.plant,
+              album_url: joinedAlbums,
+            },
+            {
+              onSuccess: () => {
+                router.push("/feed");
+              },
+            },
+          );
+        },
+        onError: (error) => {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
         },
       },
     );
   };
 
-  const handleUploadFiles = async (files: FileList, userId: string) => {
+  const handleUploadFiles = async (files: FileList, path: string) => {
     setIsUploadingFiles(true);
 
-    const collectionRef = collection(firestore, "plants");
-    const docRef = doc(collectionRef);
-    const newPlantId = docRef.id;
-
     const albumURLs = Object.values(files).map(async (file) => {
-      const storageRef = ref(
-        storage,
-        `/${userId}/plants/${newPlantId}/${file.name}`,
-      );
+      const storageRef = ref(storage, `${path}/${file.name}`);
 
       await uploadBytes(storageRef, file);
 
@@ -127,13 +134,15 @@ export function CreatePlant() {
 
     setIsUploadingFiles(false);
 
-    return {
-      newAlbum,
-      newPlantId,
-    };
+    return newAlbum;
   };
 
+  const fileRef = register("album_url");
+  const watchPhotos = watch("album_url");
+
   const previewFiles = useMemo(() => {
+    if (!watchPhotos) return [];
+
     const newFilePreviews: FilePreview[] = Array.from(watchPhotos).map(
       (file) => ({
         file: file,
@@ -144,78 +153,24 @@ export function CreatePlant() {
     return newFilePreviews || [];
   }, [watchPhotos]);
 
-  const options = ["Regular", "Feminized", "Automatic", "Clone"];
-
-  const isLoading = isCreating || isAddingPlantToCycle || isUploadingFiles;
-
   return (
     <Form {...form}>
       <form
-        className="flex w-full flex-col items-center justify-center space-y-6 rounded-lg"
+        className="flex w-full flex-col justify-center space-y-8"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <h1 className="self-start text-2xl font-semibold">Add a new plant</h1>
-
         <FormField
           control={control}
-          name="name"
+          name="title"
           render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel className="text-lg font-semibold">Name</FormLabel>
+            <FormItem className="flex flex-col">
+              <FormLabel>Title</FormLabel>
 
-              <FormControl className="mt-2">
-                <Input placeholder="Mary, Jane, etc." {...field} />
+              <FormControl>
+                <Input placeholder="Enter post title" {...field} />
               </FormControl>
 
-              <FormMessage className="text-xs text-red-600" />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="strain"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel className="text-lg font-semibold">Strain</FormLabel>
-
-              <FormControl className="mt-2">
-                <Input placeholder="AK-47, Blue Dream, etc." {...field} />
-              </FormControl>
-
-              <FormMessage className="text-xs text-red-600" />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="seed_type"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel className="text-lg font-semibold">Seed Type</FormLabel>
-
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select the seed type" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  {options.map((option) => {
-                    return (
-                      <SelectItem
-                        key={option}
-                        value={option}
-                        className="capitalize"
-                      >
-                        {option}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-
-              <FormMessage className="text-xs text-red-600" />
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -252,6 +207,55 @@ export function CreatePlant() {
 
         <FormField
           control={control}
+          name="plant"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel className="text-lg font-semibold">Plant</FormLabel>
+
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select one of your plants" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  {plants
+                    ? plants.map((option) => {
+                        return (
+                          <SelectItem key={option.uid} value={option.uid}>
+                            <p>{option.name}</p>
+                            <p className="text-xs text-muted">
+                              {option.strain} - {option.seed_type}
+                            </p>
+                          </SelectItem>
+                        );
+                      })
+                    : null}
+                </SelectContent>
+              </Select>
+
+              <FormMessage className="text-xs text-red-600" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="content"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Content</FormLabel>
+
+              <FormControl>
+                <Textarea placeholder="Enter post content" {...field} />
+              </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
           name="album_url"
           render={() => (
             <FormItem className="gap- flex w-full flex-col">
@@ -261,11 +265,7 @@ export function CreatePlant() {
                 </FormLabel>
 
                 <FormControl className="flex flex-grow flex-col items-center justify-center">
-                  <Input
-                    multiple
-                    type="file"
-                    {...control.register("album_url")}
-                  />
+                  <Input multiple type="file" {...fileRef} />
                 </FormControl>
               </div>
 
@@ -299,16 +299,16 @@ export function CreatePlant() {
 
         <Button
           type="submit"
-          className="w-full"
-          disabled={!isValid || isLoading}
+          className="flex w-full gap-2"
+          disabled={isCreating || isUploadingFiles}
         >
-          {isLoading ? (
+          {isCreating || isUploadingFiles ? (
             <>
-              <Loader2Icon className="mr-3 inline-block h-5 w-5 animate-spin" />
-              Creating
+              <Loader2Icon className="h-4 w-4 animate-spin" />
+              Posting
             </>
           ) : (
-            "Create"
+            "Post"
           )}
         </Button>
       </form>

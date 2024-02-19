@@ -4,9 +4,12 @@ import { api } from "@/trpc/server";
 import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 import { format } from "date-fns";
 import Image from "next/image";
+import { Badge } from "./ui/badge";
 
 const Plants = async () => {
   const plants = await api.plant.getLatest.query();
+
+  console.log("PLANTS", typeof plants[0]?.createdAt);
 
   return (
     <div className="space-y-4">
@@ -18,11 +21,10 @@ const Plants = async () => {
               className="h-96 space-y-8 rounded-lg bg-white shadow-lg"
             >
               <CardHeader>
-                <div className="flex items-center space-x-4">
-                  <div>
-                    <p className="text-xl font-semibold">{plant.strain}</p>
-                    <p className="text-gray-500">{plant.seed_type}</p>
-                  </div>
+                <p className="text-xl font-semibold">{plant.name}</p>
+                <div className="flex items-center gap-4">
+                  <p className="text-sm text-muted">{plant.strain}</p>
+                  <Badge>{plant.seed_type}</Badge>
                 </div>
               </CardHeader>
 

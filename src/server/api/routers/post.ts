@@ -1,16 +1,29 @@
-import { z } from "zod";
-
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { type Post } from "@/interface/Post";
+import { Timestamp } from "firebase-admin/firestore";
+import { postSchema, type Post } from "@/interface/Post";
 
 export const postRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(z.object({ title: z.string().min(1) }))
+    .input(postSchema)
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.collection("posts").add({
+      if (!ctx.session?.user) throw new Error("Unauthorized");
+
+      const now = Timestamp.now();
+
+      const normalizedInput = {
         ...input,
-        createdAt: new Date(Date.now()).toUTCString(),
-      });
+        author: {
+          uid: ctx.session.user.id,
+          displayName: ctx.session.user.name,
+          avatarUrl: ctx.session.user.image,
+        },
+        createdAt: now,
+      };
+
+      return ctx.db
+        .collection("posts")
+        .add(normalizedInput)
+        .then(() => ({ ...normalizedInput }));
     }),
 
   getLatest: protectedProcedure.query(({ ctx }) => {

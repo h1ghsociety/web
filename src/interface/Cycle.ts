@@ -1,4 +1,4 @@
-import { type Timestamp } from "firebase-admin/firestore";
+import { type Timestamp } from "firebase/firestore";
 import * as z from "zod";
 import { type Author } from "./Author";
 
