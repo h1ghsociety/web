@@ -10,10 +10,7 @@ const Cycles = async () => {
     <div className="space-y-4">
       {latestCycles.length > 0 ? (
         latestCycles.map((cycle) => (
-          <Card
-            key={cycle.uid}
-            className="h-80 space-y-8 rounded-lg bg-white shadow-lg"
-          >
+          <Card key={cycle.uid} className="h-80 space-y-8 rounded-lg shadow-lg">
             <CardHeader>
               <h2 className="text-2xl font-bold">{cycle.name}</h2>
             </CardHeader>
@@ -22,14 +19,14 @@ const Cycles = async () => {
               <div className="flex flex-col">
                 <div>
                   <p className="font-bold">Created at: </p>
-                  <p className="text-gray-700">
+                  <p className="text-muted">
                     {format(cycle.createdAt.toDate(), "PPP")}
                   </p>
                 </div>
 
                 <div>
                   <p className="font-bold">Author: </p>
-                  <p className="text-gray-700">{cycle.author.displayName}</p>
+                  <p className="text-muted">{cycle.author.displayName}</p>
                 </div>
               </div>
             </CardFooter>

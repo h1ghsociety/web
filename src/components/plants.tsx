@@ -18,7 +18,7 @@ const Plants = async () => {
           {plants.map((plant) => (
             <Card
               key={plant.uid}
-              className="h-96 space-y-8 rounded-lg bg-white shadow-lg"
+              className="h-96 space-y-8 rounded-lg shadow-lg"
             >
               <CardHeader>
                 <p className="text-xl font-semibold">{plant.name}</p>
@@ -68,7 +68,7 @@ const Plants = async () => {
           ))}
         </>
       ) : (
-        <p className="text-gray-700">No plants found</p>
+        <p className="text-muted">No plants found</p>
       )}
     </div>
   );
