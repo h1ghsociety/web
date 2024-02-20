@@ -17,7 +17,9 @@ const SettingsAccountPage = async () => {
           timezone.
         </p>
       </div>
+
       <Separator />
+
       <AccountForm session={session} />
     </div>
   );

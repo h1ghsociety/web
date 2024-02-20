@@ -21,6 +21,10 @@ const sidebarNavItems = [
     title: "Appearance",
     href: "/settings/appearance",
   },
+  {
+    title: "Sign out",
+    href: "/api/auth/signout",
+  },
 ];
 
 interface SettingsLayoutProps {

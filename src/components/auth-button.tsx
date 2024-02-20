@@ -15,7 +15,6 @@ export const AuthButton = ({ session }: { session: Session | null }) => {
       onClick={() =>
         router.push(session ? "/api/auth/signout" : "/api/auth/signin")
       }
-      variant="destructive"
       className={cn(
         "group flex w-full justify-start gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6",
       )}
