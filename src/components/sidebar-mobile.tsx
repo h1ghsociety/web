@@ -6,7 +6,6 @@ import React, { useState } from "react";
 
 import { Button, buttonVariants } from "./ui/button";
 
-import { navigation } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,8 +19,22 @@ import {
   Sheet,
   SheetFooter,
 } from "./ui/sheet";
+import { type LucideIcon } from "lucide-react";
 
-export const SidebarMobile = ({ session }: { session: Session }) => {
+export type NavigationLink = {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  current: boolean;
+};
+
+export const SidebarMobile = ({
+  session,
+  navigation,
+}: {
+  session: Session | null;
+  navigation: NavigationLink[];
+}) => {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -97,20 +110,22 @@ export const SidebarMobile = ({ session }: { session: Session }) => {
                   <AuthButton session={session} />
                 </li>
 
-                <Link
-                  href="/settings"
-                  className="flex w-full items-center gap-x-4 py-3 text-sm font-semibold leading-6 text-foreground hover:bg-background"
-                >
-                  <Image
-                    className="h-8 w-8 rounded-full bg-gray-50"
-                    src={session.user?.image ?? ""}
-                    width={32}
-                    height={32}
-                    alt={session.user?.name ?? ""}
-                  />
-                  <span className="sr-only">Your profile</span>
-                  <span aria-hidden="true">{session.user?.name}</span>
-                </Link>
+                {session && (
+                  <Link
+                    href="/settings"
+                    className="flex w-full items-center gap-x-4 py-3 text-sm font-semibold leading-6 text-foreground hover:bg-background"
+                  >
+                    <Image
+                      className="h-8 w-8 rounded-full bg-gray-50"
+                      src={session.user?.image ?? ""}
+                      width={32}
+                      height={32}
+                      alt={session.user?.name ?? ""}
+                    />
+                    <span className="sr-only">Your profile</span>
+                    <span aria-hidden="true">{session.user?.name}</span>
+                  </Link>
+                )}
               </SheetFooter>
             </ul>
           </nav>
