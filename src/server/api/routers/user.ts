@@ -11,6 +11,8 @@ export const userRouter = createTRPCRouter({
   getUserProfile: protectedProcedure
     .input(z.object({ uid: z.string() }))
     .query(({ ctx, input }) => {
+      if (!input.uid) throw new Error("uid is required");
+
       return ctx.db
         .collection("users")
         .doc(input.uid)

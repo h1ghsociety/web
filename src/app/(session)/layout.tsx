@@ -1,5 +1,4 @@
-import { SidebarDesktop } from "@/components/sidebar-desktop";
-import { SidebarMobile } from "@/components/sidebar-mobile";
+import { ProtectedSidebar } from "@/components/protected-sidebar";
 import { SessionProvider } from "@/contexts/session-provider";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
@@ -17,9 +16,8 @@ const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
 
   return (
     <SessionProvider>
-      <SidebarMobile session={session} />
+      <ProtectedSidebar session={session} />
 
-      <SidebarDesktop session={session} />
       {children}
     </SessionProvider>
   );
