@@ -12,10 +12,7 @@ export default async function Feed() {
         <>
           <ul role="list" className="space-y-3">
             {posts.map((post) => (
-              <Card
-                key={post.uid}
-                className="space-y-8 rounded-lg bg-white shadow-lg"
-              >
+              <Card key={post.uid} className="space-y-8 rounded-lg shadow-lg">
                 <CardHeader>
                   <p className="text-xl font-semibold">{post.title}</p>
                 </CardHeader>

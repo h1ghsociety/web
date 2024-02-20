@@ -10,7 +10,7 @@ export const PostCard = ({ post }: { post: Post }) => {
   console.log("POST CARD", post);
 
   return (
-    <Card className="h-96 space-y-8 rounded-lg bg-white shadow-lg">
+    <Card className="h-96 space-y-8 rounded-lg shadow-lg">
       <CardHeader>
         <p className="text-xl font-semibold">{post.title}</p>
       </CardHeader>

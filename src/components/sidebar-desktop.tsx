@@ -5,7 +5,6 @@ import { type Session } from "next-auth";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { AuthButton } from "./auth-button";
 import { navigation } from "@/lib/navigation";
 import { buttonVariants } from "./ui/button";
 import { usePathname } from "next/navigation";
@@ -47,8 +46,8 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
                   </Link>
                 </li>
 
-                <div className="text-xs font-semibold leading-6 text-gray-400">
-                  Your teams
+                <div className="pt-4 text-xs font-semibold leading-6 text-gray-400">
+                  Main
                 </div>
 
                 {navigation.map((item) => (
@@ -79,11 +78,7 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
               </ul>
             </li>
 
-            <li className="mt-auto">
-              <AuthButton session={session} />
-            </li>
-
-            <li className="-mx-6">
+            <li className="-mx-6 mt-auto">
               <Link
                 href="/settings"
                 className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-foreground hover:bg-background"
