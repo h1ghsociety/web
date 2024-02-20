@@ -9,8 +9,6 @@ import { Badge } from "./ui/badge";
 const Plants = async () => {
   const plants = await api.plant.getLatest.query();
 
-  console.log("PLANTS", typeof plants[0]?.createdAt);
-
   return (
     <div className="space-y-4">
       {plants.length > 0 ? (
@@ -68,11 +66,7 @@ const Plants = async () => {
           ))}
         </>
       ) : (
-<<<<<<< HEAD
         <p className="text-muted">No plants found</p>
-=======
-        <p className="text-gray-700">No plants found</p>
->>>>>>> 5b75b5484518470921b5d998d3582759ef846302
       )}
     </div>
   );

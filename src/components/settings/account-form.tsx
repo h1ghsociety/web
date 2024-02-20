@@ -33,7 +33,6 @@ import { api } from "@/trpc/react";
 import { Loader2Icon } from "lucide-react";
 import { useEffect } from "react";
 import { UserLanguageSchema } from "@/interface/User";
-import { useSession } from "next-auth/react";
 
 const languages = [
   { label: "English", value: "EN" },
