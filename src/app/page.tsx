@@ -1,4 +1,5 @@
-import { AuthButton } from "@/components/auth-button";
+import { Hero } from "@/components/hero";
+import { PublicHeader } from "@/components/public-header";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
 
@@ -9,9 +10,9 @@ export default async function Home() {
 
   return (
     <div>
-      <h1>Home page</h1>
+      <PublicHeader session={session} />
 
-      <AuthButton session={session} />
+      <Hero />
     </div>
   );
 }

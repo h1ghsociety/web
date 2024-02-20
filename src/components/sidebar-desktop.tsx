@@ -5,12 +5,12 @@ import { type Session } from "next-auth";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { navigation } from "@/lib/navigation";
+import { protectedNavigation } from "@/lib/navigation";
 import { buttonVariants } from "./ui/button";
 import { usePathname } from "next/navigation";
 import { Plus } from "lucide-react";
 
-export const SidebarDesktop = ({ session }: { session: Session }) => {
+export const SidebarDesktop = ({ session }: { session: Session | null }) => {
   const pathname = usePathname();
 
   return (
@@ -50,7 +50,7 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
                   Main
                 </div>
 
-                {navigation.map((item) => (
+                {protectedNavigation.map((item) => (
                   <li key={item.name}>
                     <Link
                       href={item.href}
@@ -78,22 +78,24 @@ export const SidebarDesktop = ({ session }: { session: Session }) => {
               </ul>
             </li>
 
-            <li className="-mx-6 mt-auto">
-              <Link
-                href="/settings"
-                className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-foreground hover:bg-background"
-              >
-                <Image
-                  className="h-8 w-8 rounded-full bg-gray-50"
-                  src={session.user?.image ?? ""}
-                  width={32}
-                  height={32}
-                  alt={session.user?.name ?? ""}
-                />
-                <span className="sr-only">Your profile</span>
-                <span aria-hidden="true">{session.user?.name}</span>
-              </Link>
-            </li>
+            {session && (
+              <li className="-mx-6 mt-auto">
+                <Link
+                  href="/settings"
+                  className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-foreground hover:bg-background"
+                >
+                  <Image
+                    className="h-8 w-8 rounded-full bg-gray-50"
+                    src={session.user?.image ?? ""}
+                    width={32}
+                    height={32}
+                    alt={session.user?.name ?? ""}
+                  />
+                  <span className="sr-only">Your profile</span>
+                  <span aria-hidden="true">{session.user?.name}</span>
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
       </div>
