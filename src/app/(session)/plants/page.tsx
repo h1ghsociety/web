@@ -1,6 +1,6 @@
 import { CreatePlant } from "@/components/create-plant";
 import { Dashboard } from "@/components/dashboard";
-import Plants from "@/components/plants";
+import Plants from "@/components/plants/plants";
 import { getServerAuthSession } from "@/server/auth";
 import React from "react";
 
