@@ -9,6 +9,8 @@ import { Badge } from "./ui/badge";
 const Plants = async () => {
   const plants = await api.plant.getLatest.query();
 
+  console.log("PLANTS", plants);
+
   return (
     <div className="space-y-4">
       {plants.length > 0 ? (
@@ -57,7 +59,7 @@ const Plants = async () => {
                     </p>
 
                     <p className="text-sm text-muted">
-                      {format(plant.createdAt.toDate(), "PPP")}
+                      {format(plant.createdAt.toDate(), "HH:mm - PPP")}
                     </p>
                   </div>
                 </div>

@@ -75,8 +75,6 @@ export function NewPostForm() {
   const onSubmit = async (data: NewPostDTO) => {
     if (isSubmitting || !session.data) return;
 
-    console.log("FORM DATA", data);
-
     const newAlbum = await handleUploadFiles(
       data.album_url,
       `/${session.data.user.id}/plants/${data.plant}`,
