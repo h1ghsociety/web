@@ -19,7 +19,7 @@ import {
   Sheet,
   SheetFooter,
 } from "./ui/sheet";
-import { type LucideIcon } from "lucide-react";
+import { Plus, type LucideIcon } from "lucide-react";
 
 export type NavigationLink = {
   name: string;
@@ -78,6 +78,26 @@ export const SidebarMobile = ({
           <nav className="flex flex-1 flex-col">
             <ul role="list" className="flex flex-1 flex-col gap-y-4">
               <ul role="list" className="-mx-2 space-y-1">
+                <li>
+                  <Link
+                    href="/new-post"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "group flex w-full justify-start gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6",
+                    )}
+                  >
+                    <Plus
+                      className={cn("h-4 w-4 shrink-0")}
+                      aria-hidden="true"
+                    />
+                    New post
+                  </Link>
+                </li>
+
+                <div className="pt-4 text-xs font-semibold leading-6 text-gray-400">
+                  Main
+                </div>
+
                 {navigation.map((item) => (
                   <li key={item.name}>
                     <Link

@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { type Post } from "@/interface/Post";
 import { format } from "date-fns";
@@ -9,28 +7,31 @@ import Image from "next/image";
 export const PostCard = ({ post }: { post: Post }) => {
   console.log("POST CARD", post);
 
+  // Gambiarra para contornar o erro de tipo do timestamp COISA DE MALUCO ISSO AQUI
+  const createdAt = post.createdAt as unknown as {
+    _seconds: number;
+    _nanoseconds: number;
+  };
+
   return (
-    <Card className="h-96 space-y-8 rounded-lg shadow-lg">
-      <CardHeader>
-        <p className="text-xl font-semibold">{post.title}</p>
+    <Card
+      key={post.uid}
+      className="mx-auto aspect-[2/3] h-max w-full max-w-4xl cursor-pointer rounded-lg bg-black/15 bg-blend-overlay shadow-lg"
+      style={{
+        backgroundImage: `url(${post.album_url[0]})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        aspectRatio: 3 / 2,
+      }}
+    >
+      <CardHeader className="rounded-t-lg bg-black/15">
+        <p className="text-xl font-semibold text-white">{post.title}</p>
+        <p className="text-white">{post.content}</p>
       </CardHeader>
 
-      <CardContent>
-        <div className="flex space-x-4">
-          {post.album_url.map((url) => (
-            <Image
-              key={url}
-              src={url}
-              width={112}
-              height={112}
-              className="h-28 w-28 rounded-lg object-cover"
-              alt={post.title}
-            />
-          ))}
-        </div>
-      </CardContent>
+      <CardContent className="min-h-[500px] bg-black/15"></CardContent>
 
-      <CardFooter>
+      <CardFooter className="rounded-b-lg bg-opacity-75 bg-gradient-to-b from-black/15 to-black/75 pt-6">
         <div className="flex items-center space-x-4">
           <Image
             src={post.author.avatarUrl}
@@ -41,10 +42,12 @@ export const PostCard = ({ post }: { post: Post }) => {
           />
 
           <div>
-            <p className="text-md font-semibold">{post.author.displayName}</p>
+            <p className="text-md font-semibold text-white">
+              {post.author.displayName}
+            </p>
 
-            <p className="text-sm text-muted">
-              {format(post.createdAt.toDate(), "PPP")}
+            <p className="text-sm text-white">
+              {format(new Date(createdAt._seconds * 1000), "HH:mm - PPP")}
             </p>
           </div>
         </div>
